@@ -1,12 +1,12 @@
 using Godot;
 using System;
 
-public partial class PlayerState : Resource
+public partial class RoundPlayerState : Resource
 {
-    ReactiveArray<Unit> Units;
-    ReactiveObject<Unit> SelectedUnit;
+    public ReactiveArray<Unit> Units = new([]);
+    public ReactiveObject<Unit> SelectedUnit = new(null);
 
-    ReactiveArray<Tool> Tools;
-    ReactiveObject<Tool> SelectedTool;
-    ReactiveLock<Tool> ActiveTool;
+    public ReactiveArray<Tool> Tools = new(null);
+    public ReactiveObject<Tool> SelectedTool = new(null);
+    public ReactiveLock<Tool> ActiveTool = new(null);
 }

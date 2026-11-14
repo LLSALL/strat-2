@@ -1,8 +1,8 @@
 using Godot;
 using System;
 
-public partial class EnemyState : Resource
+public partial class RoundEnemyState : Resource
 {
-    ReactiveArray<Unit> Units;
-    ReactiveObject <Unit> SelectedUnit;
+    ReactiveArray<Unit> Units = new([]);
+    ReactiveObject <Unit> SelectedUnit = new(null);
 }

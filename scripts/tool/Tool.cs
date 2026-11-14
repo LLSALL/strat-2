@@ -1,15 +1,25 @@
 using Godot;
 using System;
 
-public partial class Tool : Node
+public abstract partial class Tool : ClassNamedNode
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	}
+	protected RoundState _roundState;
+    protected ReactiveObject<Unit> _selectedUnit;
+    protected ReactiveObject<Tool> _selectedTool;
+    protected ReactiveLock<Tool> _activeTool;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+    public override void _Ready()
+    {
+        base._Ready();
+        Name = this.GetType().Name;
+		_roundState = GetNode<RoundState>(nameof(RoundState));
+        _selectedUnit = _roundState.PlayerState.SelectedUnit;
+        _selectedTool = _roundState.PlayerState.SelectedTool;
+        _activeTool = _roundState.PlayerState.ActiveTool;
+
+        _selectedTool.ReactiveChanged += OnSelectedChange;
+    }
+
+	protected abstract void OnSelectedChange(Reactive selectedTool);
+	protected abstract void OnActiveChange(Reactive activeTool);
 }
