@@ -36,7 +36,7 @@ public partial class ReactiveArray<[MustBeVariant] T> : Reactive
 
     public void Append(T item)
     {
-        _value.Append(item);
+        _value.Add(item);
         EmitSignal(SignalName.ReactiveChanged);
     }
 
