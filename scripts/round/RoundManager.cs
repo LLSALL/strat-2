@@ -3,19 +3,11 @@ using System;
 
 public partial class RoundManager : Node
 {
+    public StringName GroupName = "round_manager";
 	private RoundState _roundState;
 
     public override void _EnterTree()
     {
-        
+        AddToGroup(GroupName);
     }
-
-	public override void _Ready()
-	{
-
-	}
-
-	public override void _Process(double delta)
-	{
-	}
 }

@@ -4,20 +4,20 @@ using System.Collections.Generic;
 
 public partial class RoundMapState : Resource
 {
-    [Export] public uint SizeX {get; set;}
-    [Export] public uint SizeY {get; set;}
-    [Signal] public delegate void MapChangedEventHandler(RoundMapState mapState, Node entity);
+	[Export] public uint SizeX {get; set;}
+	[Export] public uint SizeY {get; set;}
+	[Signal] public delegate void MapChangedEventHandler(RoundMapState mapState, Node entity);
 
-    private AStarGrid2D _grid = new();
-    private Dictionary<Node, Vector2I> _coordinateMap = new();
+	private AStarGrid2D _grid = new();
+	private Dictionary<Node, Vector2I> _coordinateMap = new();
 
-    public RoundMapState()
-    {
+	public RoundMapState()
+	{
 		_grid.Region = new Rect2I(0, 0, (int) SizeX, (int) SizeY);
 		_grid.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
 		_grid.JumpingEnabled = true;
 		_grid.Update();
-    }
+	}
  
 	public bool RegisterEntity(Node entity, Vector2I point)
 	{
