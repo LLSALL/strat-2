@@ -1,0 +1,17 @@
+using Godot;
+using System;
+using System.Linq;
+
+public partial class GlobalToolList : Node
+{
+    public Godot.Collections.Array<Tool> ToolList {get; private set;} = [];
+
+    public override void _Ready()
+    {
+       ToolList.Resize(GetChildCount());
+       foreach (Node node in GetChildren())
+        {
+            if (node is Tool) ToolList.Add((Tool)node);
+        }
+    }
+}

@@ -3,6 +3,15 @@ using System;
 
 public partial class MoveTool : Tool
 {
+    public override StringName GetTitle()
+    {
+        return "Move";
+    }
+    public override bool CheckConditions()
+    {
+        throw new NotImplementedException();
+    }
+
     protected override void OnUnitChange(Reactive selectedUnit)
     {
         throw new System.NotImplementedException();

@@ -30,6 +30,8 @@ public abstract partial class Tool : Node
         _activeTool.ReactiveChanged += OnActiveChange;
 	}
 
+	public abstract StringName GetTitle();
+	public abstract bool CheckConditions();
     protected abstract void OnUnitChange (Reactive selectedUnit);
 	protected abstract void OnSelectedChange(Reactive selectedTool);
 	protected abstract void OnActiveChange(Reactive activeTool);
