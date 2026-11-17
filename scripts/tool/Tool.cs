@@ -3,8 +3,9 @@ using System;
 
 public abstract partial class Tool : Node
 {
-    public StringName GroupName = "tool";
-    [Export] public NodePath RoundStatePath {get; set;}
+	public StringName GroupName = "tool";
+	[Export] public String Description { get; set; }
+	[Export] public NodePath RoundStatePath { get; set; }
 
 	protected RoundState _roundState;
 
@@ -12,10 +13,10 @@ public abstract partial class Tool : Node
 	protected ReactiveObject<Tool> _selectedTool;
 	protected ReactiveLock<Tool> _activeTool;
 
-    public override void _EnterTree()
-    {
-        AddToGroup(GroupName);
-    }
+	public override void _EnterTree()
+	{
+		AddToGroup(GroupName);
+	}
 
 	public override void _Ready()
 	{
@@ -25,14 +26,14 @@ public abstract partial class Tool : Node
 		_selectedTool = _roundState.PlayerState.SelectedTool;
 		_activeTool = _roundState.PlayerState.ActiveTool;
 
-        _selectedUnit.ReactiveChanged += OnUnitChange;
+		_selectedUnit.ReactiveChanged += OnUnitChange;
 		_selectedTool.ReactiveChanged += OnSelectedChange;
-        _activeTool.ReactiveChanged += OnActiveChange;
+		_activeTool.ReactiveChanged += OnActiveChange;
 	}
 
 	public abstract StringName GetTitle();
 	public abstract bool CheckConditions();
-    protected abstract void OnUnitChange (Reactive selectedUnit);
+	protected abstract void OnUnitChange(Reactive selectedUnit);
 	protected abstract void OnSelectedChange(Reactive selectedTool);
 	protected abstract void OnActiveChange(Reactive activeTool);
 }

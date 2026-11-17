@@ -1,0 +1,188 @@
+[gd_scene format=3 uid="uid://d1bfssnris7mb"]
+
+[ext_resource type="Script" uid="uid://ckqxlkl6fjsah" path="res://scripts/round/RoundState.cs" id="1_b56k5"]
+[ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/tool/GlobalToolList.cs" id="2_scc5w"]
+[ext_resource type="Script" uid="uid://ccoymnuvwg0on" path="res://scripts/tool/tools/MoveTool.cs" id="3_fy0p5"]
+[ext_resource type="Script" uid="uid://ciqeo7gmrusta" path="res://scripts/round/RoundManager.cs" id="4_j8njj"]
+[ext_resource type="Script" uid="uid://dcw8ge3nam5pt" path="res://scripts/ui/UIToolList.cs" id="4_scc5w"]
+[ext_resource type="Script" uid="uid://vuomsttifdh8" path="res://scripts/ui/UIToolDescription.cs" id="5_fy0p5"]
+[ext_resource type="Script" uid="uid://onvx6ivsra5e" path="res://scripts/round/PlayerTurnManager.cs" id="5_scc5w"]
+[ext_resource type="Script" uid="uid://b33s0ygl1u2og" path="res://scripts/unit/Unit.cs" id="6_egudy"]
+[ext_resource type="Script" uid="uid://boi7nv5e8smai" path="res://scripts/ui/UIUnitList.cs" id="6_j8njj"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_rtp0y"]
+size = Vector2(32, 32)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_rtp0y"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bojl5"]
+
+[sub_resource type="Sky" id="Sky_y0rk2"]
+sky_material = SubResource("ProceduralSkyMaterial_bojl5")
+
+[sub_resource type="Environment" id="Environment_rtp0y"]
+background_mode = 2
+sky = SubResource("Sky_y0rk2")
+
+[node name="Node3D" type="Node3D" unique_id=1567706052]
+
+[node name="round" type="Node" parent="." unique_id=197333156]
+
+[node name="global" type="Node" parent="round" unique_id=588215662]
+
+[node name="round_state" type="Node" parent="round/global" unique_id=864622921]
+script = ExtResource("1_b56k5")
+
+[node name="tools" type="Node" parent="round/global" unique_id=1480390617]
+script = ExtResource("2_scc5w")
+
+[node name="move_tool" type="Node" parent="round/global/tools" unique_id=801993269]
+script = ExtResource("3_fy0p5")
+Description = "Test Description"
+RoundStatePath = NodePath("../../round_state")
+
+[node name="ui" type="Node" parent="round/global" unique_id=1351264286]
+
+[node name="ui_tool_list" type="Control" parent="round/global/ui" unique_id=832051631 node_paths=PackedStringArray("ListContainer")]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 16.0
+script = ExtResource("4_scc5w")
+RoundStatePath = NodePath("../../round_state")
+ToolListPath = NodePath("../../tools")
+ListContainer = NodePath("Panel/MarginContainer/VBoxContainer")
+
+[node name="Panel" type="Panel" parent="round/global/ui/ui_tool_list" unique_id=975942960]
+layout_mode = 0
+offset_right = 128.0
+offset_bottom = 128.0
+
+[node name="MarginContainer" type="MarginContainer" parent="round/global/ui/ui_tool_list/Panel" unique_id=993470507]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="round/global/ui/ui_tool_list/Panel/MarginContainer" unique_id=2040473000]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="round/global/ui" unique_id=41467478]
+offset_left = 488.0
+offset_top = 512.0
+offset_right = 728.0
+offset_bottom = 632.0
+
+[node name="ui_tool_description" type="Control" parent="round/global/ui/Panel" unique_id=331154245 node_paths=PackedStringArray("DescriptionPanel", "DescriptionLabel", "UnitLabel")]
+anchors_preset = 0
+script = ExtResource("5_fy0p5")
+RoundStatePath = NodePath("../../../round_state")
+DescriptionPanel = NodePath("..")
+DescriptionLabel = NodePath("../MarginContainer/VBoxContainer/Label2")
+UnitLabel = NodePath("../MarginContainer/VBoxContainer/Label")
+metadata/_edit_use_anchors_ = true
+
+[node name="MarginContainer" type="MarginContainer" parent="round/global/ui/Panel" unique_id=2076339846]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="round/global/ui/Panel/MarginContainer" unique_id=1545942040]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="round/global/ui/Panel/MarginContainer/VBoxContainer" unique_id=356572780]
+layout_mode = 2
+size_flags_vertical = 0
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="round/global/ui/Panel/MarginContainer/VBoxContainer" unique_id=1899595357]
+layout_mode = 2
+size_flags_vertical = 0
+horizontal_alignment = 1
+
+[node name="ui_unit_list" type="Control" parent="round/global/ui" unique_id=2064755437 node_paths=PackedStringArray("ListContainer")]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 160.0
+offset_right = 56.0
+offset_bottom = 200.0
+script = ExtResource("6_j8njj")
+RoundStatePath = NodePath("../../round_state")
+ListContainer = NodePath("Panel/MarginContainer/VBoxContainer")
+
+[node name="Panel" type="Panel" parent="round/global/ui/ui_unit_list" unique_id=266539275]
+layout_mode = 0
+offset_right = 128.0
+offset_bottom = 128.0
+
+[node name="MarginContainer" type="MarginContainer" parent="round/global/ui/ui_unit_list/Panel" unique_id=810555458]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="round/global/ui/ui_unit_list/Panel/MarginContainer" unique_id=1523753687]
+layout_mode = 2
+
+[node name="round_manager" type="Node" parent="round/global" unique_id=2085248112]
+script = ExtResource("4_j8njj")
+RoundStatePath = NodePath("../round_state")
+
+[node name="player_turn_manager" type="Node" parent="round/global/round_manager" unique_id=516654788]
+script = ExtResource("5_scc5w")
+RoundStatePath = NodePath("../../round_state")
+
+[node name="world" type="Node" parent="round" unique_id=2027295932]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="round/world" unique_id=560301851]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
+mesh = SubResource("PlaneMesh_rtp0y")
+
+[node name="Test Unit" type="Node3D" parent="round/world" unique_id=294240459]
+script = ExtResource("6_egudy")
+RoundStatePath = NodePath("../../global/round_state")
+ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool")])
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="round/world/Test Unit" unique_id=1840644990]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_rtp0y")
+
+[node name="Test Unit2" type="Node3D" parent="round/world" unique_id=1221501715]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
+script = ExtResource("6_egudy")
+RoundStatePath = NodePath("../../global/round_state")
+ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool")])
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="round/world/Test Unit2" unique_id=2022407560]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 1, -8)
+mesh = SubResource("CapsuleMesh_rtp0y")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="round/world" unique_id=1451581409]
+transform = Transform3D(-0.70710677, 0.61237246, -0.35355335, 0, 0.4999999, 0.8660255, 0.7071068, 0.61237246, -0.35355332, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="round/world" unique_id=2000958869]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 16, 16, 32)
+environment = SubResource("Environment_rtp0y")

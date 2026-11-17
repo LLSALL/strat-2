@@ -10,7 +10,7 @@ public partial class ReactiveArray<[MustBeVariant] T> : Reactive
         set
         {
             _value = value;
-            EmitSignal(SignalName.ReactiveChanged);
+            EmitSignal(SignalName.ReactiveChanged, this);
         }
     }
 
@@ -30,55 +30,55 @@ public partial class ReactiveArray<[MustBeVariant] T> : Reactive
         set
         {
             _value[i] = value;
-            EmitSignal(SignalName.ReactiveChanged);
+            EmitSignal(SignalName.ReactiveChanged, this);
         }
     }
 
     public void Append(T item)
     {
         _value.Add(item);
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void AppendArray(Godot.Collections.Array<T> array)
     {
         _value.AddRange(array);
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Assign(Godot.Collections.Array<T> value)
     {
         _value = value;
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Clear()
     {
         _value.Clear();
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Remove(T item)
     {
         _value.Remove(item);
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Insert(int index, T item)
     {
         _value.Insert(index, item);
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Shuffle()
     {
         _value.Shuffle();
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 
     public void Sort()
     {
         _value.Sort();
-        EmitSignal(SignalName.ReactiveChanged);
+        EmitSignal(SignalName.ReactiveChanged, this);
     }
 }

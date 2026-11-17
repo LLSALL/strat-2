@@ -10,14 +10,14 @@ public partial class Unit : Node
 
 	private RoundState _roundState;
 
-    public override void _EnterTree()
-    {
-        base._EnterTree();
+	public override void _EnterTree()
+	{
+		base._EnterTree();
 		AddToGroup(GroupName);
-    }
+	}
 
-    public override void _Ready()
-    {
+	public override void _Ready()
+	{
 		_roundState = GetNode<RoundState>(RoundStatePath);
 
 		RoundMapState mapState = _roundState.MapState;
@@ -28,5 +28,8 @@ public partial class Unit : Node
 		{
 			Tools.Add(GetNode<Tool>(path));
 		}	
-    }
+
+		_roundState.PlayerState.Units.Append(this);
+		_roundState.PlayerState.SelectedUnit.Value = this;
+	}
 }
