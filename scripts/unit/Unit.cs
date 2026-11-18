@@ -1,12 +1,13 @@
 using Godot;
 using System;
 
-public partial class Unit : Node
+public partial class Unit : Node3D
 {
 	public StringName GroupName = "unit";
-	[Export] public NodePath RoundStatePath {get; set;} 
-	[Export] public Godot.Collections.Array<NodePath> ToolPaths {get; set;} = [];
-	public Godot.Collections.Array<Tool> Tools {get; private set;}
+	[Export] public NodePath RoundStatePath { get; set; }
+	[Export] public Godot.Collections.Array<NodePath> ToolPaths { get; set; } = [];
+	[Export] public UnitPathMover PathMover { get; set; }
+	public Godot.Collections.Array<Tool> Tools { get; private set; }
 
 	private RoundState _roundState;
 
@@ -21,13 +22,15 @@ public partial class Unit : Node
 		_roundState = GetNode<RoundState>(RoundStatePath);
 
 		RoundMapState mapState = _roundState.MapState;
-		mapState.RegisterEntity(this, new Vector2I(0,0));
+		Vector2I pos = new Vector2I((int) Position.X, (int) Position.Z);
+		GD.Print(pos, mapState.IsInBounds(pos));
+		GD.Print(mapState.RegisterEntity(this, pos));
 
 		Tools = [];
 		foreach (NodePath path in ToolPaths)
 		{
 			Tools.Add(GetNode<Tool>(path));
-		}	
+		}
 
 		_roundState.PlayerState.Units.Append(this);
 		_roundState.PlayerState.SelectedUnit.Value = this;
