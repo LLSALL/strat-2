@@ -12,6 +12,7 @@ public partial class UIUnitList : Node
 
 	private ReactiveArray<Unit> _units;
 	private ReactiveObject<Unit> _selectedUnit;
+	private ReactiveLock<Tool> _activeTool;
 
 	private Dictionary<Unit, Button> _unitButtonMap;
 
@@ -26,9 +27,11 @@ public partial class UIUnitList : Node
 
 		_units = _roundState.PlayerState.Units;
 		_selectedUnit = _roundState.PlayerState.SelectedUnit;
+		_activeTool = _roundState.PlayerState.ActiveTool;
 
 		_units.ReactiveChanged += OnUnitsChange;
 		_selectedUnit.ReactiveChanged += OnSelectedChange;
+		_activeTool.ReactiveChanged += OnActiveChange;
 
 		_unitButtonMap = new();
 	}
@@ -41,6 +44,11 @@ public partial class UIUnitList : Node
 	}
 
 	private void OnSelectedChange(Reactive r)
+	{
+		UpdateButtonStates();
+	}
+
+	private void OnActiveChange(Reactive r)
 	{
 		UpdateButtonStates();
 	}
@@ -72,7 +80,12 @@ public partial class UIUnitList : Node
 	{
 		foreach ((Unit unit, Button button) in _unitButtonMap)
 		{
-			if (_selectedUnit.Value == unit)
+			if (_activeTool.Value != null)
+			{
+				button.Show();
+				button.Disabled = true;   
+			}
+			else if (_selectedUnit.Value == unit)
 			{
 				button.Show();
 				button.Disabled = true;

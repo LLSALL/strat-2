@@ -8,6 +8,7 @@ public partial class MoveTool : Tool
 	private Vector2I _cursorCoordinates;
 	private Vector2I _endCoordinates;
 	private bool _cursorInFloor = false;
+	private bool _processFloor = false;
 	private RoundMapState _mapState;
 
 	public override StringName GetTitle()
@@ -18,8 +19,8 @@ public partial class MoveTool : Tool
 	public override void _Ready()
 	{
 		base._Ready();
-		_floorArea.InputEvent += OnFloorChange;
 		_mapState = _roundState.MapState;
+		_floorArea.InputEvent += OnFloorChange;
 	}
 
 	public override bool CheckConditions()
@@ -31,7 +32,7 @@ public partial class MoveTool : Tool
 	{
 		if (!@event.IsActionPressed("start")) return;
 		_activeTool.TryLock(this); // Move start action code here?
-		// TODO prevent this from running without a valid path
+								   // TODO prevent this from running without a valid path
 	}
 
 	protected override void OnUnitChange(Reactive selectedUnit)
@@ -43,11 +44,13 @@ public partial class MoveTool : Tool
 	{
 		if (_selectedTool.Value == this)
 		{
-
+			SetProcessInput(true);
+			_processFloor = true;
 		}
 		else
 		{
-
+			SetProcessInput(false);
+			_processFloor = false;
 		}
 	}
 
@@ -78,6 +81,8 @@ public partial class MoveTool : Tool
 
 	private void OnFloorChange(Node camera, InputEvent inputEvent, Vector3 position, Vector3 normal, long shapeIdx)
 	{
+		if (!_processFloor) return;
+
 		var position2I = new Vector2I((int)position.X, (int)position.Z);
 		if (!_mapState.IsInBounds(position2I))
 		{
