@@ -21,6 +21,7 @@ public partial class PlayerTurnManager : Node
 
     private void OnUnitChange(Reactive r)
     {
+        // TODO Check for null value
         _roundState.PlayerState.Tools.Value = _roundState.PlayerState.SelectedUnit.Value.Tools;
         _roundState.PlayerState.SelectedTool.Value = null;
     }

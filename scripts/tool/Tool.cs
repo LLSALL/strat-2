@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public abstract partial class Tool : Node
+public abstract partial class Tool : Node3D
 {
 	public StringName GroupName = "tool";
 	[Export] public String Description { get; set; }

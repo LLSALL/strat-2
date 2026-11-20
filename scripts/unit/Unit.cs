@@ -35,4 +35,16 @@ public partial class Unit : Node3D
 		_roundState.PlayerState.Units.Append(this);
 		_roundState.PlayerState.SelectedUnit.Value = this;
 	}
+
+	public override void _ExitTree()
+	{
+		_roundState.PlayerState.Units.Remove(this);
+		if (_roundState.PlayerState.SelectedUnit.Value == this)
+		{
+			_roundState.PlayerState.SelectedUnit.Value = null;
+		}
+		
+		RoundMapState mapState = _roundState.MapState;
+		mapState.UnregisterEntity(this);
+	}
 }

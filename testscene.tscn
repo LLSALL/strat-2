@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://ckqxlkl6fjsah" path="res://scripts/round/RoundState.cs" id="1_b56k5"]
 [ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/tool/GlobalToolList.cs" id="2_scc5w"]
 [ext_resource type="Script" uid="uid://ccoymnuvwg0on" path="res://scripts/tool/tools/MoveTool.cs" id="3_fy0p5"]
+[ext_resource type="Script" uid="uid://iusij4hvflqa" path="res://scripts/tool/tools/AttackTool.cs" id="4_egudy"]
 [ext_resource type="Script" uid="uid://ciqeo7gmrusta" path="res://scripts/round/RoundManager.cs" id="4_j8njj"]
 [ext_resource type="Script" uid="uid://dcw8ge3nam5pt" path="res://scripts/ui/UIToolList.cs" id="4_scc5w"]
 [ext_resource type="Script" uid="uid://vuomsttifdh8" path="res://scripts/ui/UIToolDescription.cs" id="5_fy0p5"]
@@ -17,6 +18,8 @@
 size = Vector2(32, 32)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_rtp0y"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rtp0y"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bojl5"]
 
@@ -39,7 +42,7 @@ script = ExtResource("1_b56k5")
 [node name="tools" type="Node" parent="round/global" unique_id=1480390617]
 script = ExtResource("2_scc5w")
 
-[node name="move_tool" type="Node" parent="round/global/tools" unique_id=801993269 node_paths=PackedStringArray("_floorArea")]
+[node name="move_tool" type="Node3D" parent="round/global/tools" unique_id=2108048581 node_paths=PackedStringArray("_floorArea")]
 script = ExtResource("3_fy0p5")
 _floorArea = NodePath("Area3D")
 Description = "Test Description"
@@ -49,6 +52,12 @@ RoundStatePath = NodePath("../../round_state")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="round/global/tools/move_tool/Area3D" unique_id=1646871433]
 shape = SubResource("WorldBoundaryShape3D_rtp0y")
+
+[node name="attack_tool" type="Node3D" parent="round/global/tools" unique_id=53733593 node_paths=PackedStringArray("cam")]
+script = ExtResource("4_egudy")
+cam = NodePath("../../../world/Camera3D")
+Description = "Attack"
+RoundStatePath = NodePath("../../round_state")
 
 [node name="ui" type="Node" parent="round/global" unique_id=1351264286]
 
@@ -169,10 +178,10 @@ RoundStatePath = NodePath("../../round_state")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
 mesh = SubResource("PlaneMesh_rtp0y")
 
-[node name="Test Unit" type="Node3D" parent="round/world" unique_id=294240459 node_paths=PackedStringArray("PathMover")]
+[node name="Test Unit" type="Area3D" parent="round/world" unique_id=1262313211 node_paths=PackedStringArray("PathMover")]
 script = ExtResource("6_egudy")
 RoundStatePath = NodePath("../../global/round_state")
-ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool")])
+ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool"), NodePath("../../global/tools/attack_tool")])
 PathMover = NodePath("PathMover")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="round/world/Test Unit" unique_id=1840644990]
@@ -181,14 +190,18 @@ mesh = SubResource("CapsuleMesh_rtp0y")
 
 [node name="PathMover" type="Node" parent="round/world/Test Unit" unique_id=1645876715 node_paths=PackedStringArray("Transform")]
 script = ExtResource("10_hkdkl")
-Transform = NodePath("..")
+Transform = NodePath("")
 MoveSpeed = 20.0
 
-[node name="Test Unit2" type="Node3D" parent="round/world" unique_id=1221501715 node_paths=PackedStringArray("PathMover")]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="round/world/Test Unit" unique_id=1238841565]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_rtp0y")
+
+[node name="Test Unit2" type="Area3D" parent="round/world" unique_id=833007643 node_paths=PackedStringArray("PathMover")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 31, 0, 0)
 script = ExtResource("6_egudy")
 RoundStatePath = NodePath("../../global/round_state")
-ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool")])
+ToolPaths = Array[NodePath]([NodePath("../../global/tools/move_tool"), NodePath("../../global/tools/attack_tool")])
 PathMover = NodePath("PathMover")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="round/world/Test Unit2" unique_id=2022407560]
@@ -197,8 +210,12 @@ mesh = SubResource("CapsuleMesh_rtp0y")
 
 [node name="PathMover" type="Node" parent="round/world/Test Unit2" unique_id=170100470 node_paths=PackedStringArray("Transform")]
 script = ExtResource("10_hkdkl")
-Transform = NodePath("..")
+Transform = NodePath("")
 MoveSpeed = 20.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="round/world/Test Unit2" unique_id=538959807]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_rtp0y")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="round/world" unique_id=1451581409]
 transform = Transform3D(-0.70710677, 0.61237246, -0.35355335, 0, 0.4999999, 0.8660255, 0.7071068, 0.61237246, -0.35355332, 0, 0, 0)
