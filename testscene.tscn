@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://onvx6ivsra5e" path="res://scripts/round/PlayerTurnManager.cs" id="5_scc5w"]
 [ext_resource type="Script" uid="uid://b33s0ygl1u2og" path="res://scripts/unit/Unit.cs" id="6_egudy"]
 [ext_resource type="Script" uid="uid://boi7nv5e8smai" path="res://scripts/ui/UIUnitList.cs" id="6_j8njj"]
+[ext_resource type="Script" uid="uid://cx0vtjij8hobc" path="res://scripts/ui/UIEndTurn.cs" id="7_01clm"]
 [ext_resource type="Script" uid="uid://ceh8h1x0s67cd" path="res://scripts/unit/UnitPathMover.cs" id="10_hkdkl"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_rtp0y"]
@@ -61,7 +62,7 @@ RoundStatePath = NodePath("../../round_state")
 
 [node name="ui" type="Node" parent="round/global" unique_id=1351264286]
 
-[node name="ui_tool_list" type="Control" parent="round/global/ui" unique_id=832051631 node_paths=PackedStringArray("ListContainer")]
+[node name="ui_tool_list" type="Control" parent="round/global/ui" unique_id=832051631 node_paths=PackedStringArray("Panel", "ListContainer")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 16.0
@@ -71,6 +72,7 @@ offset_bottom = 16.0
 script = ExtResource("4_scc5w")
 RoundStatePath = NodePath("../../round_state")
 ToolListPath = NodePath("../../tools")
+Panel = NodePath("Panel")
 ListContainer = NodePath("Panel/MarginContainer/VBoxContainer")
 
 [node name="Panel" type="Panel" parent="round/global/ui/ui_tool_list" unique_id=975942960]
@@ -108,6 +110,16 @@ DescriptionLabel = NodePath("../MarginContainer/VBoxContainer/Label2")
 UnitLabel = NodePath("../MarginContainer/VBoxContainer/Label")
 metadata/_edit_use_anchors_ = true
 
+[node name="ui_end_turn" type="Control" parent="round/global/ui/Panel" unique_id=450874822 node_paths=PackedStringArray("EndTurnButton")]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("7_01clm")
+RoundStatePath = NodePath("../../../round_state")
+ToolListPath = NodePath("../../../tools")
+RoundManagerPath = NodePath("../../../round_manager")
+EndTurnButton = NodePath("../MarginContainer/VBoxContainer/Button")
+
 [node name="MarginContainer" type="MarginContainer" parent="round/global/ui/Panel" unique_id=2076339846]
 layout_mode = 1
 anchors_preset = 15
@@ -133,7 +145,11 @@ layout_mode = 2
 size_flags_vertical = 0
 horizontal_alignment = 1
 
-[node name="ui_unit_list" type="Control" parent="round/global/ui" unique_id=2064755437 node_paths=PackedStringArray("ListContainer")]
+[node name="Button" type="Button" parent="round/global/ui/Panel/MarginContainer/VBoxContainer" unique_id=1514120118]
+layout_mode = 2
+text = "End Turn"
+
+[node name="ui_unit_list" type="Control" parent="round/global/ui" unique_id=2064755437 node_paths=PackedStringArray("Panel", "ListContainer")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 16.0
@@ -142,6 +158,7 @@ offset_right = 56.0
 offset_bottom = 200.0
 script = ExtResource("6_j8njj")
 RoundStatePath = NodePath("../../round_state")
+Panel = NodePath("Panel")
 ListContainer = NodePath("Panel/MarginContainer/VBoxContainer")
 
 [node name="Panel" type="Panel" parent="round/global/ui/ui_unit_list" unique_id=266539275]
@@ -190,7 +207,7 @@ mesh = SubResource("CapsuleMesh_rtp0y")
 
 [node name="PathMover" type="Node" parent="round/world/Test Unit" unique_id=1645876715 node_paths=PackedStringArray("Transform")]
 script = ExtResource("10_hkdkl")
-Transform = NodePath("")
+Transform = NodePath("..")
 MoveSpeed = 20.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="round/world/Test Unit" unique_id=1238841565]
@@ -210,7 +227,7 @@ mesh = SubResource("CapsuleMesh_rtp0y")
 
 [node name="PathMover" type="Node" parent="round/world/Test Unit2" unique_id=170100470 node_paths=PackedStringArray("Transform")]
 script = ExtResource("10_hkdkl")
-Transform = NodePath("")
+Transform = NodePath("..")
 MoveSpeed = 20.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="round/world/Test Unit2" unique_id=538959807]

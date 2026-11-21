@@ -7,12 +7,15 @@ public partial class UIToolList : Node
 	public StringName GroupName = "ui";
 	[Export] public NodePath RoundStatePath { get; set; }
 	[Export] public NodePath ToolListPath { get; set; }
+	[Export] public CanvasItem Panel {get; set;}
 	[Export] public BoxContainer ListContainer { get; set; }
 
 	private Godot.Collections.Array<Tool> _globalToolList;
 
 	private RoundState _roundState;
 
+	private ReactiveBool _isPlayerTurn;
+	private ReactiveObject<Unit> _selectedUnit;
 	private ReactiveArray<Tool> _playerTools;
 	private ReactiveObject<Tool> _selectedTool;
 	private ReactiveLock<Tool> _activeTool;
@@ -29,9 +32,12 @@ public partial class UIToolList : Node
 		_roundState = GetNode<RoundState>(RoundStatePath);
 
 		_playerTools = _roundState.PlayerState.Tools;
+		_selectedUnit = _roundState.PlayerState.SelectedUnit;
 		_selectedTool = _roundState.PlayerState.SelectedTool;
 		_activeTool = _roundState.PlayerState.ActiveTool;
+		_isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
 
+		_isPlayerTurn.ReactiveChanged += OnChange;
 		_playerTools.ReactiveChanged += OnChange;
 		_selectedTool.ReactiveChanged += OnChange;
 		_activeTool.ReactiveChanged += OnChange;
@@ -74,10 +80,18 @@ public partial class UIToolList : Node
 	private void BuildList()
 	{
 		if (_playerTools.Value is null) return;
+		if (_isPlayerTurn.Value == false)
+		{
+			Panel.Hide();
+			return;
+		} else
+		{
+			Panel.Show();
+		}
 		foreach (Tool tool in _playerTools.Value)
 		{
 			Button button = _toolButtonMap[tool];
-			switch (_activeTool.Value is not null, tool == _selectedTool.Value, tool.CheckConditions())
+			switch (_activeTool.Value is not null, tool == _selectedTool.Value, tool.CheckConditions(_selectedUnit.Value))
 			{
 				case (true, _, _):
 				case (_, true, _):

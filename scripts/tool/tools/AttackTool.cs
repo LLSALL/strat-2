@@ -10,7 +10,7 @@ public partial class AttackTool : Tool
         return "Attack";
     }
 
-    public override bool CheckConditions()
+    public override bool CheckConditions(Unit unit)
     {
         return true;
     }

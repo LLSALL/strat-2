@@ -3,6 +3,7 @@ using System;
 
 public partial class RoundEnemyState : Resource
 {
-	ReactiveArray<Unit> Units = new([]);
-	ReactiveObject <Unit> SelectedUnit = new(null);
+	public ReactiveBool IsEnemyTurn = new(false, null);
+	public ReactiveArray<Unit> Units = new([]);
+	public ReactiveObject <Unit> SelectedUnit = new(null);
 }

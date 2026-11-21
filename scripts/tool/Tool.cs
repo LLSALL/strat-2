@@ -32,7 +32,7 @@ public abstract partial class Tool : Node3D
 	}
 
 	public abstract StringName GetTitle();
-	public abstract bool CheckConditions();
+	public abstract bool CheckConditions(Unit unit);
 	protected abstract void OnUnitChange(Reactive selectedUnit);
 	protected abstract void OnSelectedChange(Reactive selectedTool);
 	protected abstract void OnActiveChange(Reactive activeTool);

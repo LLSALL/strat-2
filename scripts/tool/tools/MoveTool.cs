@@ -23,7 +23,7 @@ public partial class MoveTool : Tool
 		_floorArea.InputEvent += OnFloorChange;
 	}
 
-	public override bool CheckConditions()
+	public override bool CheckConditions(Unit uni)
 	{
 		return true;
 	}

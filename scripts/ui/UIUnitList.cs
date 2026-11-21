@@ -6,11 +6,15 @@ public partial class UIUnitList : Node
 {
 	public StringName GroupName = "ui";
 	[Export] public NodePath RoundStatePath { get; set; }
+	[Export] public CanvasItem Panel {get; set;}
 	[Export] public BoxContainer ListContainer { get; set; }
 
 	private RoundState _roundState;
 
 	private ReactiveArray<Unit> _units;
+
+	private ReactiveBool _isPlayerTurn;
+
 	private ReactiveObject<Unit> _selectedUnit;
 	private ReactiveLock<Tool> _activeTool;
 
@@ -28,7 +32,9 @@ public partial class UIUnitList : Node
 		_units = _roundState.PlayerState.Units;
 		_selectedUnit = _roundState.PlayerState.SelectedUnit;
 		_activeTool = _roundState.PlayerState.ActiveTool;
+		_isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
 
+		_isPlayerTurn.ReactiveChanged += OnActiveChange;
 		_units.ReactiveChanged += OnUnitsChange;
 		_selectedUnit.ReactiveChanged += OnSelectedChange;
 		_activeTool.ReactiveChanged += OnActiveChange;
@@ -78,6 +84,15 @@ public partial class UIUnitList : Node
 
 	private void UpdateButtonStates()
 	{
+		if (_isPlayerTurn.Value == false)
+		{
+			Panel.Hide();
+		}
+		else
+		{
+			Panel.Show();
+		}
+
 		foreach ((Unit unit, Button button) in _unitButtonMap)
 		{
 			if (_activeTool.Value != null)

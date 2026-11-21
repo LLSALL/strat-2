@@ -28,6 +28,7 @@ public partial class UIToolDescription : Node
         _activeTool = _roundState.PlayerState.ActiveTool;
         _selectedUnit = _roundState.PlayerState.SelectedUnit;
 
+        _roundState.PlayerState.IsPlayerTurn.ReactiveChanged += OnChange;
         _selectedTool.ReactiveChanged += OnChange;
         _activeTool.ReactiveChanged += OnChange;
         _selectedUnit.ReactiveChanged += OnChange;
@@ -35,7 +36,7 @@ public partial class UIToolDescription : Node
 
     private void OnChange(Reactive r)
     {
-        if (_activeTool.Value is not null)
+        if (_roundState.PlayerState.IsPlayerTurn.Value == false || _activeTool.Value is not null)
         {
             DescriptionPanel.Hide();
         }
