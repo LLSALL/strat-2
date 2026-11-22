@@ -42,7 +42,7 @@ public partial class PlayerTurnManager : Node
 		{
 			foreach (Tool tool in unit.Tools)
 			{
-				if (canAct = tool.CheckConditions(unit) == true) break;
+				if (canAct = tool.CanUse(unit) == true) break;
 			}
 			if (canAct) break;
 		}

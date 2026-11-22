@@ -10,32 +10,33 @@ public partial class AttackTool : Tool
         return "Attack";
     }
 
-    public override bool CheckConditions(Unit unit)
+    public override string GetDescription()
+    {
+        return "Attack desc";
+    }
+
+    public override bool CanUse(Unit unit)
     {
         return true;
     }
 
-    protected override void OnUnitChange(Reactive selectedUnit)
+    protected override void EnableIdle()
     {
-
+        SetProcessInput(true);
     }
 
-    protected override void OnSelectedChange(Reactive selectedTool)
+    protected override void DisableIdle()
     {
-        if (_selectedTool.Value == this)
-        {
-            SetProcessInput(true);
-        }
-        else
-        {
-            SetProcessInput(false);
-        }
+        SetProcessInput(false);
     }
 
-    protected override void OnActiveChange(Reactive activeTool)
+    protected override (GodotObject, StringName) BeginActive()
     {
-
+        return NoContinuation;
     }
+
+    protected override void CompleteActive() {}
+    
     private const float RayLength = 1000.0f;
 
     // Current: When RMB pressed, check if there is a unit is under the cursor. 

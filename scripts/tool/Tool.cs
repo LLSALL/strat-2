@@ -41,10 +41,10 @@ public abstract partial class Tool : Node3D
 	public abstract StringName GetTitle();
 	public abstract String GetDescription();
 
-	public abstract bool CheckConditions(Unit unit);
+	public abstract bool CanUse(Unit unit);
 
-	protected abstract void DisableProcessing();
-	protected abstract void EnableProcessing();
+	protected abstract void EnableIdle();
+	protected abstract void DisableIdle();
 	protected abstract (GodotObject, StringName) BeginActive();
 	protected abstract void CompleteActive();
 
@@ -56,12 +56,12 @@ public abstract partial class Tool : Node3D
 
 		if (notPlayerTurn || notSelectedTool || activeToolExists)
 		{
-			EnableProcessing();
+			EnableIdle();
 		}
 
 		else
 		{
-			DisableProcessing();
+			DisableIdle();
 		}
 	}
 

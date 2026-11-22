@@ -91,7 +91,7 @@ public partial class UIToolList : Node
 		foreach (Tool tool in _playerTools.Value)
 		{
 			Button button = _toolButtonMap[tool];
-			switch (_activeTool.Value is not null, tool == _selectedTool.Value, tool.CheckConditions(_selectedUnit.Value))
+			switch (_activeTool.Value is not null, tool == _selectedTool.Value, tool.CanUse(_selectedUnit.Value))
 			{
 				case (true, _, _):
 				case (_, true, _):

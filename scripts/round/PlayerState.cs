@@ -23,4 +23,44 @@ public partial class RoundPlayerState : Reactive
 		SelectedTool = new(null, this);
 		ActiveTool = new(this);
 	}
+
+	public void RegisterUnit(Unit unit)
+	{
+		Units.Append(unit);	
+	}
+
+	public void UnregisterUnit(Unit unit)
+	{
+		Units.Remove(unit);	
+	}
+	
+	public void SelectFirstAvailableUnit()
+	{
+		Unit selectedUnit = null;
+		foreach (Unit unit in Units.Value)
+		{
+			if (unit.CanAct())
+			{
+				selectedUnit = unit;
+				break;
+			}
+		}	
+
+		SelectedUnit.Value = selectedUnit;
+	}
+
+	public void SelectFirstAvailableTool()
+	{
+		Tool selectedTool = null;
+		foreach (Tool tool in Tools.Value)
+		{
+			if (tool.CanUse(SelectedUnit.Value))
+			{
+				selectedTool = tool;
+				break;
+			}
+		}	
+
+		SelectedTool.Value = selectedTool;
+	}
 }

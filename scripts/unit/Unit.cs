@@ -3,7 +3,6 @@ using System;
 
 public partial class Unit : Node3D
 {
-	public StringName GroupName = "unit";
 	[Export] public NodePath RoundStatePath { get; set; }
 	[Export] public Godot.Collections.Array<NodePath> ToolPaths { get; set; } = [];
 	[Export] public UnitPathMover PathMover { get; set; }
@@ -11,20 +10,13 @@ public partial class Unit : Node3D
 
 	private RoundState _roundState;
 
-	public override void _EnterTree()
-	{
-		base._EnterTree();
-		AddToGroup(GroupName);
-	}
-
 	public override void _Ready()
 	{
 		_roundState = GetNode<RoundState>(RoundStatePath);
 
 		RoundMapState mapState = _roundState.MapState;
 		Vector2I pos = new Vector2I((int) Position.X, (int) Position.Z);
-		GD.Print(pos, mapState.IsInBounds(pos));
-		GD.Print(mapState.RegisterEntity(this, pos));
+		mapState.RegisterEntity(this, pos);
 
 		Tools = [];
 		foreach (NodePath path in ToolPaths)
@@ -46,5 +38,20 @@ public partial class Unit : Node3D
 		
 		RoundMapState mapState = _roundState.MapState;
 		mapState.UnregisterEntity(this);
+	}
+
+	public bool CanAct()
+	{
+		bool canAct = false;
+		foreach (Tool tool in Tools)
+		{
+			if (tool.CanUse(this))
+			{
+				canAct = true;
+				break;
+			}
+		}
+
+		return canAct;
 	}
 }

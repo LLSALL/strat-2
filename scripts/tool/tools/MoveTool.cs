@@ -3,7 +3,7 @@ using System;
 
 public partial class MoveTool : Tool
 {
-	private Unit _unit;
+	private Unit _activeUnit;
 	[Export] public Area3D _floorArea { get; set; }
 	private Vector2I _cursorCoordinates;
 	private Vector2I _endCoordinates;
@@ -16,6 +16,11 @@ public partial class MoveTool : Tool
 		return "Move";
 	}
 
+    public override string GetDescription()
+    {
+        return "Move Desc";
+    }
+
 	public override void _Ready()
 	{
 		base._Ready();
@@ -23,60 +28,56 @@ public partial class MoveTool : Tool
 		_floorArea.InputEvent += OnFloorChange;
 	}
 
-	public override bool CheckConditions(Unit uni)
+	public override bool CanUse(Unit unit)
 	{
+		if (unit is null)
+		{
+
+		}
+
 		return true;
 	}
 
 	public override void _Input(InputEvent @event)
 	{
 		if (!@event.IsActionPressed("start")) return;
-		_activeTool.TryLock(this); // Move start action code here?
+		_activeTool.TryLock(this);
 								   // TODO prevent this from running without a valid path
 	}
 
-	protected override void OnUnitChange(Reactive selectedUnit)
+	protected override void EnableIdle()
 	{
-		_unit = _selectedUnit.Value;
+		SetProcessInput(true);
+		_processFloor = true; // TODO Change?
 	}
 
-	protected override void OnSelectedChange(Reactive selectedTool)
+	protected override void DisableIdle()
 	{
-		if (_selectedTool.Value == this)
-		{
-			SetProcessInput(true);
-			_processFloor = true;
-		}
-		else
-		{
-			SetProcessInput(false);
-			_processFloor = false;
-		}
+		SetProcessInput(false);
+		_processFloor = false; // TODO Change?
+
 	}
 
-	protected override void OnActiveChange(Reactive activeTool)
+	protected override (GodotObject, StringName) BeginActive()
 	{
-		if (_activeTool.Value == this)
-		{
-			_endCoordinates = _cursorCoordinates;
-			GD.Print($"{_mapState.GetCoordinates(_unit)} => {_endCoordinates}");
-			var path = _mapState.PlotPath(
-				_mapState.GetCoordinates(_unit),
-				_endCoordinates
-				);
-			_unit.PathMover.BeginPath(path);
-			_unit.PathMover.Connect("PathFinished", Callable.From(ActionCompleted), (uint)GodotObject.ConnectFlags.OneShot);
-		}
-		else
-		{
+		_activeUnit = _selectedUnit.Value;
+		_endCoordinates = _cursorCoordinates;
 
-		}
+		GD.Print($"{_mapState.GetCoordinates(_activeUnit)} => {_endCoordinates}");
+
+		var path = _mapState.PlotPath(
+			_mapState.GetCoordinates(_activeUnit),
+			_endCoordinates
+			);
+		_activeUnit.PathMover.BeginPath(path);
+
+		return (_activeUnit, "PathFinished");
 	}
 
-	private void ActionCompleted()
+	protected override void CompleteActive()
 	{
-		_mapState.SetCoordinates(_unit, _endCoordinates);
-		_activeTool.TryUnlock(this);
+		_mapState.SetCoordinates(_activeUnit, _endCoordinates);
+		_activeUnit = null;
 	}
 
 	private void OnFloorChange(Node camera, InputEvent inputEvent, Vector3 position, Vector3 normal, long shapeIdx)
