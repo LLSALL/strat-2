@@ -35,7 +35,8 @@ public abstract partial class Tool : Node3D
 		_selectedTool = _roundState.PlayerState.SelectedTool;
 		_activeTool = _roundState.PlayerState.ActiveTool;
 
-		_playerState.ReactiveChanged += HandleProcessingState;
+		_playerState.ReactiveChanged += HandleIdleState;
+		_playerState.ReactiveChanged += HandleActiveStart;
 	}
 
 	public abstract StringName GetTitle();
@@ -48,7 +49,7 @@ public abstract partial class Tool : Node3D
 	protected abstract (GodotObject, StringName) BeginActive();
 	protected abstract void CompleteActive();
 
-	public void HandleProcessingState(Reactive r)
+	public void HandleIdleState(Reactive r)
 	{
 		bool notPlayerTurn = !_isPlayerTurn.Value;
 		bool notSelectedTool = _selectedTool.Value != this;
@@ -67,18 +68,17 @@ public abstract partial class Tool : Node3D
 
 	public void HandleActiveStart(Reactive r)
 	{
-		if (_activeTool.Value == this)
+		if (_activeTool.Value != this) return;
+
+		var continuation = BeginActive();
+		var (obj, signalName) = continuation;
+		if (continuation != NoContinuation)
 		{
-			var continuation = BeginActive();
-			var (obj, signalName) = continuation;
-			if (continuation != NoContinuation)
-			{
-				obj.Connect(signalName, Callable.From(OnActiveCompleted), (uint)GodotObject.ConnectFlags.OneShot);
-			}
-			else
-			{
-				_activeTool.TryUnlock(this);
-			}
+			obj.Connect(signalName, Callable.From(OnActiveCompleted), (uint)GodotObject.ConnectFlags.OneShot);
+		}
+		else
+		{
+			_activeTool.TryUnlock(this);
 		}
 	}
 
