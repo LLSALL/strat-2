@@ -4,6 +4,7 @@ using System;
 public partial class RoundPlayerState : Reactive
 {
 	public ReactiveBool IsPlayerTurn;
+
 	public ReactiveArray<Unit> Units;
 	public ReactiveObject<Unit> SelectedUnit;
 
