@@ -78,7 +78,7 @@ public partial class RoundMapState : Resource
 	public Godot.Collections.Array<Vector2I> PlotPath(Vector2I start, Vector2I end)
 	{
 		bool isSolid = _grid.IsPointSolid(start);
-		_grid.SetPointSolid(start, false); // Is this right?
+		_grid.SetPointSolid(start, false);
 
 		var path = _grid.GetIdPath(start, end, false);
 

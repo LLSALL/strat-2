@@ -10,14 +10,14 @@ public abstract partial class Tool : Node3D
 	protected RoundState _roundState;
 	protected RoundPlayerState _playerState;
 
-	protected BoolValue _isPlayerTurn;
+	protected BoolReadOnlyValue _isPlayerTurn;
 
-	protected ArrayValue<Unit> _units;
-	protected ObjectValue<Unit> _selectedUnit;
+	protected ArrayReadOnlyValue<Unit> _units;
+	protected ObjectReadOnlyValue<Unit> _selectedUnit;
 
-	protected ArrayValue<Tool> _tools;
-	protected ObjectValue<Tool> _selectedTool;
-	protected LockValue<Tool> _activeTool;
+	protected ArrayReadOnlyValue<Tool> _tools;
+	protected ObjectReadOnlyValue<Tool> _selectedTool;
+	protected LockReadOnlyValue<Tool> _activeTool;
 
 	protected static (GodotObject, StringName) NoContinuation = (null, null);
 
@@ -79,13 +79,13 @@ public abstract partial class Tool : Node3D
 		}
 		else
 		{
-			_activeTool.TryUnlock(this);
+			_playerState.LockActiveTool(this);
 		}
 	}
 
 	public void OnActiveCompleted()
 	{
 		CompleteActive();
-		_activeTool.TryUnlock(this);
+		_playerState.UnlockActiveTool(this);
 	}
 }

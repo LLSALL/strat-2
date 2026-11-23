@@ -3,11 +3,7 @@
 [ext_resource type="Script" uid="uid://ckqxlkl6fjsah" path="res://scripts/round/RoundState.cs" id="1_b56k5"]
 [ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/round/GlobalToolList.cs" id="2_scc5w"]
 [ext_resource type="Script" uid="uid://ccoymnuvwg0on" path="res://scripts/tool/tools/MoveTool.cs" id="3_fy0p5"]
-[ext_resource type="Script" uid="uid://dcw8ge3nam5pt" path="res://scripts/ui/UIToolList.cs" id="4_scc5w"]
-[ext_resource type="Script" uid="uid://vuomsttifdh8" path="res://scripts/ui/UIToolDescription.cs" id="5_fy0p5"]
 [ext_resource type="Script" uid="uid://b33s0ygl1u2og" path="res://scripts/unit/Unit.cs" id="6_egudy"]
-[ext_resource type="Script" uid="uid://boi7nv5e8smai" path="res://scripts/ui/UIUnitList.cs" id="6_j8njj"]
-[ext_resource type="Script" uid="uid://cx0vtjij8hobc" path="res://scripts/ui/UIEndTurn.cs" id="7_01clm"]
 [ext_resource type="Script" uid="uid://ceh8h1x0s67cd" path="res://scripts/unit/UnitPathMover.cs" id="10_hkdkl"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_rtp0y"]
@@ -88,6 +84,345 @@ public partial class AttackTool : Tool
         }
     }
 }"
+
+[sub_resource type="CSharpScript" id="CSharpScript_mawog"]
+script/source = "using Godot;
+using System;
+using System.Collections.Generic;
+
+public partial class UIToolList : Node
+{
+	public StringName GroupName = \"ui\";
+	[Export] public NodePath RoundStatePath { get; set; }
+	[Export] public NodePath ToolListPath { get; set; }
+	[Export] public CanvasItem Panel {get; set;}
+	[Export] public BoxContainer ListContainer { get; set; }
+
+	private Godot.Collections.Array<Tool> _globalToolList;
+
+	private RoundState _roundState;
+	private RoundPlayerState _playerState;
+
+	private ReactiveBool _isPlayerTurn;
+	private ReactiveObject<Unit> _selectedUnit;
+	private ReactiveArray<Tool> _playerTools;
+	private ReactiveObject<Tool> _selectedTool;
+	private ReactiveLock<Tool> _activeTool;
+
+	private Dictionary<Tool, Button> _toolButtonMap;
+
+	public override void _EnterTree()
+	{
+		AddToGroup(GroupName);
+	}
+
+	public override void _Ready()
+	{
+		_roundState = GetNode<RoundState>(RoundStatePath);
+
+		_playerTools = _roundState.PlayerState.Tools;
+		_selectedUnit = _roundState.PlayerState.SelectedUnit;
+		_selectedTool = _roundState.PlayerState.SelectedTool;
+		_activeTool = _roundState.PlayerState.ActiveTool;
+		_isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
+
+		_isPlayerTurn.ReactiveChanged += OnChange;
+		_playerTools.ReactiveChanged += OnChange;
+		_selectedTool.ReactiveChanged += OnChange;
+		_activeTool.ReactiveChanged += OnChange;
+
+		_globalToolList = GetNode<GlobalToolList>(ToolListPath).ToolList;
+
+		_toolButtonMap = new();
+		foreach (Tool tool in _globalToolList)
+		{
+			Button button = new();
+			button.Text = tool.GetTitle();
+			button.Pressed += () =>
+			{
+				if (_activeTool.Value is not null) return;
+				_selectedTool.Value = tool;
+			};
+
+			ListContainer.AddChild(button);
+			_toolButtonMap.Add(tool, button);
+
+			button.Hide();
+		}
+	}
+
+	private void OnChange(Reactive r)
+	{
+		ClearList();
+		if (_playerTools.Value is null) return;
+		BuildList();
+	}
+
+	private void ClearList()
+	{
+		foreach ((var tool, var button) in _toolButtonMap)
+		{
+			button.Hide();
+		}
+	}
+
+	private void BuildList()
+	{
+		if (_playerTools.Value is null) return;
+		if (_isPlayerTurn.Value == false)
+		{
+			Panel.Hide();
+			return;
+		} else
+		{
+			Panel.Show();
+		}
+		foreach (Tool tool in _playerTools.Value)
+		{
+			Button button = _toolButtonMap[tool];
+			switch (_activeTool.Value is not null, tool == _selectedTool.Value, _playerState.CanSelectTool(tool))
+			{
+				case (true, _, _):
+				case (_, true, _):
+				case (_, _, false):
+					button.Show();
+					button.Disabled = true;
+					break;
+
+				case (_, _, true):
+					button.Show();
+					button.Disabled = false;
+					break;
+			}
+		}
+	}
+}
+"
+
+[sub_resource type="CSharpScript" id="CSharpScript_b56k5"]
+script/source = "using Godot;
+using System;
+
+public partial class UIToolDescription : Node
+{
+    public StringName GroupName = \"ui\";
+    [Export] public NodePath RoundStatePath { get; set; }
+    [Export] public Panel DescriptionPanel { get; set; }
+    [Export] public Label DescriptionLabel { get; set; }
+    [Export] public Label UnitLabel { get; set; }
+
+    private RoundState _roundState;
+
+    private ReactiveObject<Tool> _selectedTool;
+    private ReactiveObject<Unit> _selectedUnit;
+    private ReactiveLock<Tool> _activeTool;
+
+    public override void _EnterTree()
+    {
+        AddToGroup(GroupName);
+    }
+
+    public override void _Ready()
+    {
+        _roundState = GetNode<RoundState>(RoundStatePath);
+
+        _selectedTool = _roundState.PlayerState.SelectedTool;
+        _activeTool = _roundState.PlayerState.ActiveTool;
+        _selectedUnit = _roundState.PlayerState.SelectedUnit;
+
+        _roundState.PlayerState.IsPlayerTurn.ReactiveChanged += OnChange;
+        _selectedTool.ReactiveChanged += OnChange;
+        _activeTool.ReactiveChanged += OnChange;
+        _selectedUnit.ReactiveChanged += OnChange;
+    }
+
+    private void OnChange(Reactive r)
+    {
+        if (_roundState.PlayerState.IsPlayerTurn.Value == false || _activeTool.Value is not null)
+        {
+            DescriptionPanel.Hide();
+        }
+
+        else
+        {
+            DescriptionPanel.Show();   
+        }
+
+        Tool tool = _selectedTool.Value;
+        if (tool is not null)
+        {
+            DescriptionLabel.Text = tool.Description;
+        }
+        else
+        {
+            DescriptionLabel.Text = \"\";
+        }
+
+        Unit unit = _selectedUnit.Value;
+        if (unit is not null)
+        {
+            UnitLabel.Text = unit.Name;
+        }
+        else
+        {
+            UnitLabel.Text = \"\";
+        }
+    }
+}"
+
+[sub_resource type="CSharpScript" id="CSharpScript_scc5w"]
+script/source = "using Godot;
+using System;
+
+public partial class UIEndTurn : Node
+{
+    public StringName GroupName = \"ui\";
+    [Export] public NodePath RoundStatePath { get; set; }
+    [Export] public NodePath ToolListPath { get; set; }
+    [Export] public NodePath RoundManagerPath { get; set; }
+    [Export] public Button EndTurnButton { get; set; }
+
+    private RoundState _roundState;
+    private RoundManager _roundManager;
+
+    public override void _EnterTree()
+    {
+
+    }
+
+    public override void _Ready()
+    {
+        _roundState = GetNode<RoundState>(RoundStatePath);
+        _roundManager = GetNode<RoundManager>(RoundManagerPath);
+        EndTurnButton.Pressed += OnButtonPress;
+    }
+
+
+    public void OnButtonPress()
+    {
+        _roundManager.EndPlayerTurn();
+        
+    }
+}
+"
+
+[sub_resource type="CSharpScript" id="CSharpScript_fy0p5"]
+script/source = "using Godot;
+using System;
+using System.Collections.Generic;
+
+public partial class UIUnitList : Node
+{
+	public StringName GroupName = \"ui\";
+	[Export] public NodePath RoundStatePath { get; set; }
+	[Export] public CanvasItem Panel {get; set;}
+	[Export] public BoxContainer ListContainer { get; set; }
+
+	private RoundState _roundState;
+
+	private ReactiveArray<Unit> _units;
+
+	private ReactiveBool _isPlayerTurn;
+
+	private ReactiveObject<Unit> _selectedUnit;
+	private ReactiveLock<Tool> _activeTool;
+
+	private Dictionary<Unit, Button> _unitButtonMap;
+
+	public override void _EnterTree()
+	{
+		AddToGroup(GroupName);
+	}
+
+	public override void _Ready()
+	{
+		_roundState = GetNode<RoundState>(RoundStatePath);
+
+		_units = _roundState.PlayerState.Units;
+		_selectedUnit = _roundState.PlayerState.SelectedUnit;
+		_activeTool = _roundState.PlayerState.ActiveTool;
+		_isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
+
+		_isPlayerTurn.ReactiveChanged += OnActiveChange;
+		_units.ReactiveChanged += OnUnitsChange;
+		_selectedUnit.ReactiveChanged += OnSelectedChange;
+		_activeTool.ReactiveChanged += OnActiveChange;
+
+		_unitButtonMap = new();
+	}
+
+	private void OnUnitsChange(Reactive r)
+	{
+		ClearList();
+		BuildList();
+		UpdateButtonStates();
+	}
+
+	private void OnSelectedChange(Reactive r)
+	{
+		UpdateButtonStates();
+	}
+
+	private void OnActiveChange(Reactive r)
+	{
+		UpdateButtonStates();
+	}
+
+	private void ClearList()
+	{
+		_unitButtonMap = null;
+		foreach (Node node in ListContainer.GetChildren())
+		{
+			ListContainer.RemoveChild(node);
+			node.QueueFree();
+		}
+	}
+
+	private void BuildList()
+	{
+		_unitButtonMap = new();
+		foreach (Unit unit in _units.Value)
+		{
+			Button button = new();
+			button.Text = unit.Name;
+			button.Pressed += () => { _selectedUnit.Value = unit; };
+			ListContainer.AddChild(button);
+			_unitButtonMap.Add(unit, button);
+		}
+	}
+
+	private void UpdateButtonStates()
+	{
+		if (_isPlayerTurn.Value == false)
+		{
+			Panel.Hide();
+		}
+		else
+		{
+			Panel.Show();
+		}
+
+		foreach ((Unit unit, Button button) in _unitButtonMap)
+		{
+			if (_activeTool.Value != null)
+			{
+				button.Show();
+				button.Disabled = true;   
+			}
+			else if (_selectedUnit.Value == unit)
+			{
+				button.Show();
+				button.Disabled = true;
+			}
+			else
+			{
+				button.Show();
+				button.Disabled = false;
+			}
+		}
+	}
+}
+"
 
 [sub_resource type="CSharpScript" id="CSharpScript_hkdkl"]
 script/source = "using Godot;
@@ -241,7 +576,7 @@ offset_left = 16.0
 offset_top = 16.0
 offset_right = 16.0
 offset_bottom = 16.0
-script = ExtResource("4_scc5w")
+script = SubResource("CSharpScript_mawog")
 RoundStatePath = NodePath("../../round_state")
 ToolListPath = NodePath("../../tools")
 Panel = NodePath("Panel")
@@ -275,7 +610,7 @@ offset_bottom = 632.0
 
 [node name="ui_tool_description" type="Control" parent="round/global/ui/Panel" unique_id=331154245 node_paths=PackedStringArray("DescriptionPanel", "DescriptionLabel", "UnitLabel")]
 anchors_preset = 0
-script = ExtResource("5_fy0p5")
+script = SubResource("CSharpScript_b56k5")
 RoundStatePath = NodePath("../../../round_state")
 DescriptionPanel = NodePath("..")
 DescriptionLabel = NodePath("../MarginContainer/VBoxContainer/Label2")
@@ -286,7 +621,7 @@ metadata/_edit_use_anchors_ = true
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
-script = ExtResource("7_01clm")
+script = SubResource("CSharpScript_scc5w")
 RoundStatePath = NodePath("../../../round_state")
 ToolListPath = NodePath("../../../tools")
 RoundManagerPath = NodePath("../../../round_manager")
@@ -328,7 +663,7 @@ offset_left = 16.0
 offset_top = 160.0
 offset_right = 56.0
 offset_bottom = 200.0
-script = ExtResource("6_j8njj")
+script = SubResource("CSharpScript_fy0p5")
 RoundStatePath = NodePath("../../round_state")
 Panel = NodePath("Panel")
 ListContainer = NodePath("Panel/MarginContainer/VBoxContainer")

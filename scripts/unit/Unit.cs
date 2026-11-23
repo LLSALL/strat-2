@@ -12,10 +12,10 @@ public partial class Unit : Node3D
 	private RoundPlayerState _playerState;
 	private RoundMapState _mapState;
 
-	private BoolValue _isPlayerTurn;
-	private ArrayValue<Unit> _units;
-	private ObjectValue<Unit> _selectedUnit;
-	private LockValue<Tool> _activeTool;
+	private BoolReadOnlyValue _isPlayerTurn;
+	private ArrayReadOnlyValue<Unit> _units;
+	private ObjectReadOnlyValue<Unit> _selectedUnit;
+	private LockReadOnlyValue<Tool> _activeTool;
 
 	public override void _Ready()
 	{
@@ -37,17 +37,12 @@ public partial class Unit : Node3D
 		}
 
 		_playerState.RegisterUnit(this);
-		_playerState.SetSelectedUnit(this);
+		_playerState.SetSelectedUnit(this); // TODO move this elsewhere
 	}
 
 	public override void _ExitTree()
 	{
-		_units.Remove(this);
-		if (_selectedUnit.Value == this)
-		{
-			_selectedUnit.Value = null;
-		}
-		
+		_playerState.UnregisterUnit(this);
 		_mapState.UnregisterEntity(this);
 	}
 	public bool CanAct()

@@ -3,47 +3,55 @@ using System;
 
 public partial class RoundPlayerState : Value
 {
-	public BoolValue IsPlayerTurn;
 
-	public ArrayValue<Unit> Units;
-	public ObjectValue<Unit> SelectedUnit;
+	public BoolReadOnlyValue IsPlayerTurn;
+	public ArrayReadOnlyValue<Unit> Units;
+	public ObjectReadOnlyValue<Unit> SelectedUnit;
+	public ArrayReadOnlyValue<Tool> Tools;
+	public ObjectReadOnlyValue<Tool> SelectedTool;
+	public LockReadOnlyValue<Tool> ActiveTool;
 
-	public ArrayValue<Tool> Tools;
-	public ObjectValue<Tool> SelectedTool;
-	public LockValue<Tool> ActiveTool;
+	private BoolValue _isPlayerTurn;
+
+	private ArrayValue<Unit> _units;
+	private ObjectValue<Unit> _selectedUnit;
+
+	private ArrayValue<Tool> _tools;
+	private ObjectValue<Tool> _selectedTool;
+	private LockValue<Tool> _activeTool;
 
 	public RoundPlayerState()
 	{
-		IsPlayerTurn = new(true, this);
+		_isPlayerTurn = new(true, this);
 
-		Units = new([]);
-		SelectedUnit = new(null, this);
+		_units = new([]);
+		_selectedUnit = new(null, this);
 
-		Tools = new([], this);
-		SelectedTool = new(null, this);
-		ActiveTool = new(this);
+		_tools = new([], this);
+		_selectedTool = new(null, this);
+		_activeTool = new(this);
 	}
 
 	public void BeginPlayerTurn()
 	{
 		SelectFirstAvailableUnit();
-		IsPlayerTurn.Value = true;
+		_isPlayerTurn.Value = true;
 	}
 
 	public void EndPlayerTurn()
 	{
-		IsPlayerTurn.Value = false;
+		_isPlayerTurn.Value = false;
 	}
 
 	public void RegisterUnit(Unit unit)
 	{
-		Units.Append(unit);	
+		_units.Append(unit);	
 	}
 
 	public void UnregisterUnit(Unit unit)
 	{
-		Units.Remove(unit);	
-		if (SelectedUnit.Value == unit)
+		_units.Remove(unit);	
+		if (_selectedUnit.Value == unit)
 		{
 			SelectFirstAvailableUnit();
 		}
@@ -51,15 +59,15 @@ public partial class RoundPlayerState : Value
 
 	public void SetSelectedUnit(Unit unit)
 	{
-		SelectedUnit.Value = unit;
+		_selectedUnit.Value = unit;
 
 		if (unit is not null)
 		{
-			Tools.Value = unit.Tools;
+			_tools.Value = unit.Tools;
 		}
 		else
 		{
-			Tools.Clear();
+			_tools.Clear();
 		}
 
 		SelectFirstAvailableTool();
@@ -67,9 +75,9 @@ public partial class RoundPlayerState : Value
 	
 	public bool CanSelectUnit(Unit unit)
 	{
-		bool isPlayerTurn = IsPlayerTurn.Value;
-		bool notSelectedUnit = SelectedUnit.Value != unit;
-		bool noActiveToolExists = ActiveTool.Value is null;
+		bool isPlayerTurn = _isPlayerTurn.Value;
+		bool notSelectedUnit = _selectedUnit.Value != unit;
+		bool noActiveToolExists = _activeTool.Value is null;
 		bool canAct = unit.CanAct();
 
 		return isPlayerTurn && notSelectedUnit && noActiveToolExists && canAct;
@@ -78,7 +86,7 @@ public partial class RoundPlayerState : Value
 	public void SelectFirstAvailableUnit()
 	{
 		Unit selectedUnit = null;
-		foreach (Unit unit in Units.Value)
+		foreach (Unit unit in _units.Value)
 		{
 			if (unit.CanAct())
 			{
@@ -92,15 +100,15 @@ public partial class RoundPlayerState : Value
 
 	public void SetSelectedTool(Tool tool)
 	{
-		SelectedTool.Value = tool;
+		_selectedTool.Value = tool;
 	}
 
 	public bool CanSelectTool(Tool tool)
 	{
-		bool isPlayerTurn = IsPlayerTurn.Value;
-		bool notSelectedTool = SelectedTool.Value != tool;
-		bool noActiveToolExists = ActiveTool.Value is null;
-		bool canAct = tool.CanAct(SelectedUnit.Value);
+		bool isPlayerTurn = _isPlayerTurn.Value;
+		bool notSelectedTool = _selectedTool.Value != tool;
+		bool noActiveToolExists = _activeTool.Value is null;
+		bool canAct = tool.CanAct(_selectedUnit.Value);
 
 		return isPlayerTurn && notSelectedTool && noActiveToolExists && canAct;
 	}
@@ -108,7 +116,7 @@ public partial class RoundPlayerState : Value
 	public void SelectFirstAvailableTool()
 	{
 		Tool selectedTool = null;
-		foreach (Tool tool in Tools.Value)
+		foreach (Tool tool in _tools.Value)
 		{
 			if (CanSelectTool(tool))
 			{
@@ -117,19 +125,19 @@ public partial class RoundPlayerState : Value
 			}
 		}	
 
-		SelectedTool.Value = selectedTool;
+		_selectedTool.Value = selectedTool;
 	}
 
-	public bool SetActiveTool(Tool tool)
+	public bool LockActiveTool(Tool tool)
 	{
-		return ActiveTool.TryLock(tool);
+		return _activeTool.TryLock(tool);
 	}
 
-	public bool UnsetActiveTool(Tool tool)
+	public bool UnlockActiveTool(Tool tool)
 	{
-		if (!ActiveTool.TryUnlock(tool)) return false;
+		if (!_activeTool.TryUnlock(tool)) return false;
 
-		if (!CanSelectTool(SelectedTool.Value))
+		if (!CanSelectTool(_selectedTool.Value))
 		{
 			SelectFirstAvailableTool();
 		}

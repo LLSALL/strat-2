@@ -40,9 +40,9 @@ public partial class MoveTool : Tool
 
 	public override void _Input(InputEvent @event)
 	{
+		// TODO prevent this from running without a valid path
 		if (!@event.IsActionPressed("start")) return;
-		_activeTool.TryLock(this);
-								   // TODO prevent this from running without a valid path
+		_playerState.LockActiveTool(this);
 	}
 
 	protected override void EnableIdle()

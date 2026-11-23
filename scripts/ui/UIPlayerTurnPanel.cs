@@ -6,11 +6,10 @@ public partial class UIPlayerTurnPanel : Control
     [Export] public NodePath RoundStatePath { get; set; }
 
     private RoundState _roundState;
-    private BoolValue _isPlayerTurn;
+    private BoolReadOnlyValue _isPlayerTurn;
 
     public override void _Ready()
     {
-        base._Ready();
         _roundState = GetNode<RoundState>(RoundStatePath);
         _isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
 
