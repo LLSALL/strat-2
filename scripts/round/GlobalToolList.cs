@@ -11,7 +11,7 @@ public partial class GlobalToolList : Node
        ToolList = [];
        foreach (Node node in GetChildren())
         {
-            if (node is Tool) ToolList.Add((Tool)node);
+            if (node is Tool tool) ToolList.Add(tool);
         }
     }
 }
