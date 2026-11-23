@@ -63,8 +63,6 @@ public partial class MoveTool : Tool
 		_activeUnit = _selectedUnit.Value;
 		_endCoordinates = _cursorCoordinates;
 
-		GD.Print($"{_mapState.GetCoordinates(_activeUnit)} => {_endCoordinates}");
-
 		var path = _mapState.PlotPath(
 			_mapState.GetCoordinates(_activeUnit),
 			_endCoordinates
