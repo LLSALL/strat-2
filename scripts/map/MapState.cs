@@ -2,21 +2,17 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class RoundMapState : Resource
+public partial class RoundMapState : Node
 {
-	// TODO Expose this, without making this a node?
-	public uint SizeX {get; private set;}
-	public uint SizeY {get; private set;}
+	[Export] public uint SizeX {get; set;}
+	[Export] public uint SizeY {get; set;}
 	[Signal] public delegate void MapChangedEventHandler(RoundMapState mapState, Node entity);
 
 	private AStarGrid2D _grid = new();
 	private Dictionary<Node, Vector2I> _coordinateMap = new();
 
-	public RoundMapState(uint sizeX, uint sizeY)
+	public RoundMapState()
 	{
-		SizeX = sizeX;
-		SizeY = sizeY;
-
 		_grid.Region = new Rect2I(0, 0, (int) SizeX, (int) SizeY);
 		_grid.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
 		_grid.JumpingEnabled = true;

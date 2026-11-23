@@ -3,13 +3,18 @@ using System;
 
 public partial class Unit : Node3D
 {
-	[Export] public NodePath RoundStatePath { get; set; }
+	[Export] public NodePath PlayerStatePath { get; set; }
+	[Export] public NodePath EnemyStatePath { get; set; }
+	[Export] public NodePath MapStatePath { get; set; }
+
+
+
 	[Export] public Godot.Collections.Array<NodePath> ToolPaths { get; set; } = [];
 	[Export] public UnitPathMover PathMover { get; set; }
 	public Godot.Collections.Array<Tool> Tools { get; private set; }
 
-	private RoundState _roundState;
 	private RoundPlayerState _playerState;
+	private RoundEnemyState _enemyState;
 	private RoundMapState _mapState;
 
 	private BoolReadOnlyValue _isPlayerTurn;
@@ -19,10 +24,9 @@ public partial class Unit : Node3D
 
 	public override void _Ready()
 	{
-		_roundState = GetNode<RoundState>(RoundStatePath);
-
-		_playerState = _roundState.PlayerState;
-		_mapState = _roundState.MapState;
+		_playerState = GetNode<RoundPlayerState>(PlayerStatePath);
+		_enemyState = GetNode<RoundEnemyState>(EnemyStatePath);
+		_mapState = GetNode<RoundMapState>(MapStatePath);
 
 		_units = _playerState.Units;
 		_selectedUnit = _playerState.SelectedUnit;
@@ -37,7 +41,6 @@ public partial class Unit : Node3D
 		}
 
 		_playerState.RegisterUnit(this);
-		_playerState.SetSelectedUnit(this); // TODO move this elsewhere
 	}
 
 	public override void _ExitTree()

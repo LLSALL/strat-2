@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class RoundEnemyState
+public partial class RoundEnemyState : Node
 {
     
 }

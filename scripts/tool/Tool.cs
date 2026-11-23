@@ -5,10 +5,14 @@ using System.Security.Principal;
 public abstract partial class Tool : Node3D
 {
 	[Export] public String Description { get; set; }
-	[Export] public NodePath RoundStatePath { get; set; }
 
-	protected RoundState _roundState;
+	[Export] public NodePath PlayerStatePath { get; set; }
+	[Export] public NodePath EnemyStatePath { get; set; }
+	[Export] public NodePath MapStatePath { get; set; }
+
 	protected RoundPlayerState _playerState;
+	protected RoundEnemyState _enemyState;
+	protected RoundMapState _mapState;
 
 	protected BoolReadOnlyValue _isPlayerTurn;
 
@@ -23,20 +27,21 @@ public abstract partial class Tool : Node3D
 
 	public override void _Ready()
 	{
-		_roundState = GetNode<RoundState>(RoundStatePath);
-		_playerState = _roundState.PlayerState;
+		_playerState = GetNode<RoundPlayerState>(PlayerStatePath);
+		_enemyState = GetNode<RoundEnemyState>(EnemyStatePath);
+		_mapState = GetNode<RoundMapState>(MapStatePath);
 
 		_isPlayerTurn = _playerState.IsPlayerTurn;
 
 		_units = _playerState.Units;
 		_selectedUnit = _playerState.SelectedUnit;
 
-		_tools = _roundState.PlayerState.Tools;
-		_selectedTool = _roundState.PlayerState.SelectedTool;
-		_activeTool = _roundState.PlayerState.ActiveTool;
+		_tools = _playerState.Tools;
+		_selectedTool = _playerState.SelectedTool;
+		_activeTool = _playerState.ActiveTool;
 
-		_playerState.ReactiveChanged += HandleIdleState;
-		_playerState.ReactiveChanged += HandleActiveStart;
+		_playerState.Value.ReactiveChanged += HandleIdleState;
+		_playerState.Value.ReactiveChanged += HandleActiveStart;
 	}
 
 	public abstract StringName GetTitle();

@@ -1,15 +1,16 @@
 using Godot;
 using System;
 
-public partial class RoundPlayerState : Value
+public partial class RoundPlayerState : Node
 {
+	public Value Value { get; private set; }
 
-	public BoolReadOnlyValue IsPlayerTurn;
-	public ArrayReadOnlyValue<Unit> Units;
-	public ObjectReadOnlyValue<Unit> SelectedUnit;
-	public ArrayReadOnlyValue<Tool> Tools;
-	public ObjectReadOnlyValue<Tool> SelectedTool;
-	public LockReadOnlyValue<Tool> ActiveTool;
+	public BoolReadOnlyValue IsPlayerTurn { get; private set; }
+	public ArrayReadOnlyValue<Unit> Units { get; private set; }
+	public ObjectReadOnlyValue<Unit> SelectedUnit { get; private set; }
+	public ArrayReadOnlyValue<Tool> Tools { get; private set; }
+	public ObjectReadOnlyValue<Tool> SelectedTool { get; private set; }
+	public LockReadOnlyValue<Tool> ActiveTool { get; private set; }
 
 	private BoolValue _isPlayerTurn;
 
@@ -22,14 +23,16 @@ public partial class RoundPlayerState : Value
 
 	public RoundPlayerState()
 	{
-		_isPlayerTurn = new(true, this);
+		Value = new();
+
+		_isPlayerTurn = new(true, Value);
 
 		_units = new([]);
-		_selectedUnit = new(null, this);
+		_selectedUnit = new(null, Value);
 
-		_tools = new([], this);
-		_selectedTool = new(null, this);
-		_activeTool = new(this);
+		_tools = new([], Value);
+		_selectedTool = new(null, Value);
+		_activeTool = new(Value);
 	}
 
 	public void BeginPlayerTurn()
@@ -45,12 +48,12 @@ public partial class RoundPlayerState : Value
 
 	public void RegisterUnit(Unit unit)
 	{
-		_units.Append(unit);	
+		_units.Append(unit);
 	}
 
 	public void UnregisterUnit(Unit unit)
 	{
-		_units.Remove(unit);	
+		_units.Remove(unit);
 		if (_selectedUnit.Value == unit)
 		{
 			SelectFirstAvailableUnit();
@@ -72,7 +75,7 @@ public partial class RoundPlayerState : Value
 
 		SelectFirstAvailableTool();
 	}
-	
+
 	public bool CanSelectUnit(Unit unit)
 	{
 		bool isPlayerTurn = _isPlayerTurn.Value;
@@ -93,7 +96,7 @@ public partial class RoundPlayerState : Value
 				selectedUnit = unit;
 				break;
 			}
-		}	
+		}
 
 		SetSelectedUnit(selectedUnit);
 	}
@@ -123,7 +126,7 @@ public partial class RoundPlayerState : Value
 				selectedTool = tool;
 				break;
 			}
-		}	
+		}
 
 		_selectedTool.Value = selectedTool;
 	}

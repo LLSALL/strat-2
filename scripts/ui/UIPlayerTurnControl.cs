@@ -1,17 +1,17 @@
 using Godot;
 using System;
 
-public partial class UIPlayerTurnPanel : Control
+public partial class UIPlayerTurnControl : Control
 {
-    [Export] public NodePath RoundStatePath { get; set; }
+    [Export] public NodePath PlayerStatePath { get; set; }
 
-    private RoundState _roundState;
+    private RoundPlayerState _playerState;
     private BoolReadOnlyValue _isPlayerTurn;
 
     public override void _Ready()
     {
-        _roundState = GetNode<RoundState>(RoundStatePath);
-        _isPlayerTurn = _roundState.PlayerState.IsPlayerTurn;
+        _playerState = GetNode<RoundPlayerState>(PlayerStatePath);
+        _isPlayerTurn = _playerState.IsPlayerTurn;
 
         _isPlayerTurn.ReactiveChanged += OnPlayerTurnChange;
     }

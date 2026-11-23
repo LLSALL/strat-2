@@ -8,8 +8,7 @@ public partial class MoveTool : Tool
 	private Vector2I _cursorCoordinates;
 	private Vector2I _endCoordinates;
 	private bool _cursorInFloor = false;
-	private bool _processFloor = false;
-	private RoundMapState _mapState;
+	private bool _processFloor = true;
 
 	public override StringName GetTitle()
 	{
@@ -18,14 +17,12 @@ public partial class MoveTool : Tool
 
 	public override string GetDescription()
 	{
-		return "Move Desc";
+		return "Move Description";
 	}
 
 	public override void _Ready()
 	{
 		base._Ready();
-		_mapState = _roundState.MapState;
-		_floorArea.InputEvent += OnFloorChange;
 	}
 
 	public override bool CanAct(Unit unit)
@@ -40,21 +37,29 @@ public partial class MoveTool : Tool
 
 	public override void _Input(InputEvent @event)
 	{
-		// TODO prevent this from running without a valid path
 		if (!@event.IsActionPressed("start")) return;
+
+		var path = _mapState.PlotPath(
+			_mapState.GetCoordinates(_selectedUnit.Value),
+			_cursorCoordinates
+			);
+		if (path.Count == 0) return;
+
 		_playerState.LockActiveTool(this);
 	}
 
 	protected override void EnableIdle()
 	{
 		SetProcessInput(true);
-		_processFloor = true; // TODO Change?
+		_floorArea.InputEvent += OnFloorChange;
+		// _processFloor = true; // TODO Change?
 	}
 
 	protected override void DisableIdle()
 	{
 		SetProcessInput(false);
-		_processFloor = false; // TODO Change?
+		_floorArea.InputEvent -= OnFloorChange;
+		// _processFloor = false; // TODO Change?
 
 	}
 
