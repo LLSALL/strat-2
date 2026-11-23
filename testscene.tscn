@@ -1,19 +1,191 @@
 [gd_scene format=3 uid="uid://d1bfssnris7mb"]
 
 [ext_resource type="Script" uid="uid://ckqxlkl6fjsah" path="res://scripts/round/RoundState.cs" id="1_b56k5"]
-[ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/tool/GlobalToolList.cs" id="2_scc5w"]
+[ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/round/GlobalToolList.cs" id="2_scc5w"]
 [ext_resource type="Script" uid="uid://ccoymnuvwg0on" path="res://scripts/tool/tools/MoveTool.cs" id="3_fy0p5"]
-[ext_resource type="Script" uid="uid://iusij4hvflqa" path="res://scripts/tool/tools/AttackTool.cs" id="4_egudy"]
-[ext_resource type="Script" uid="uid://ciqeo7gmrusta" path="res://scripts/round/RoundManager.cs" id="4_j8njj"]
 [ext_resource type="Script" uid="uid://dcw8ge3nam5pt" path="res://scripts/ui/UIToolList.cs" id="4_scc5w"]
 [ext_resource type="Script" uid="uid://vuomsttifdh8" path="res://scripts/ui/UIToolDescription.cs" id="5_fy0p5"]
-[ext_resource type="Script" uid="uid://onvx6ivsra5e" path="res://scripts/round/PlayerTurnManager.cs" id="5_scc5w"]
 [ext_resource type="Script" uid="uid://b33s0ygl1u2og" path="res://scripts/unit/Unit.cs" id="6_egudy"]
 [ext_resource type="Script" uid="uid://boi7nv5e8smai" path="res://scripts/ui/UIUnitList.cs" id="6_j8njj"]
 [ext_resource type="Script" uid="uid://cx0vtjij8hobc" path="res://scripts/ui/UIEndTurn.cs" id="7_01clm"]
 [ext_resource type="Script" uid="uid://ceh8h1x0s67cd" path="res://scripts/unit/UnitPathMover.cs" id="10_hkdkl"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_rtp0y"]
+
+[sub_resource type="CSharpScript" id="CSharpScript_j8njj"]
+script/source = "using Godot;
+using System;
+
+public partial class AttackTool : Tool
+{
+    [Export] public Camera3D cam { get; set; }
+
+    public override StringName GetTitle()
+    {
+        return \"Attack\";
+    }
+
+    public override bool CheckConditions(Unit unit)
+    {
+        return true;
+    }
+
+    protected override void OnUnitChange(Reactive selectedUnit)
+    {
+
+    }
+
+    protected override void OnSelectedChange(Reactive selectedTool)
+    {
+        if (_selectedTool.Value == this)
+        {
+            SetProcessInput(true);
+        }
+        else
+        {
+            SetProcessInput(false);
+        }
+    }
+
+    protected override void OnActiveChange(Reactive activeTool)
+    {
+
+    }
+    private const float RayLength = 1000.0f;
+
+    // Current: When RMB pressed, check if there is a unit is under the cursor. 
+    // If there is, call that unit's set health function. Tool does not become active.
+
+    // TODO: Use LMB to select a unit if it is under the cursor. 
+    // Have the player press a button to initiate the attack.
+    // The attack should be animated, and the tool should become active for that duration.
+
+    // Also have a GUI to manually swap between potential targets.
+    // Guard against attacking self
+    // Disallow targeting of friendlies.
+    // Current unit should determine the amount of damage dealt.
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventMouseButton eventMouseButton && eventMouseButton.Pressed && eventMouseButton.ButtonIndex == MouseButton.Right)
+        {
+            var spaceState = GetWorld3D().DirectSpaceState;
+            var mousePos = GetViewport().GetMousePosition();
+
+            var origin = cam.ProjectRayOrigin(mousePos);
+            var end = origin + cam.ProjectRayNormal(mousePos) * RayLength;
+            var query = PhysicsRayQueryParameters3D.Create(origin, end);
+            query.CollideWithAreas = true;
+
+            var result = spaceState.IntersectRay(query);
+            Node collider = (Node)result[\"collider\"]; // TODO figure out how to properly check this
+            GD.Print(collider);
+            GD.Print(collider.GetParent());
+            Unit unit = (Unit) collider;
+            if (unit is not null)
+            {
+                unit.Health -= 100;
+            }
+        }
+    }
+}"
+
+[sub_resource type="CSharpScript" id="CSharpScript_hkdkl"]
+script/source = "using Godot;
+using System;
+
+public partial class RoundManager : Node
+{
+	public StringName GroupName = \"round_manager\";
+	[Export] public NodePath RoundStatePath { get; set; }
+
+	private RoundState _roundState;
+
+	public override void _EnterTree()
+	{
+		AddToGroup(GroupName);
+	}
+
+	public override void _Ready()
+	{
+		_roundState = GetNode<RoundState>(RoundStatePath);
+	}
+
+	public void EndPlayerTurn()
+	{
+		_roundState.PlayerState.EndPlayerTurn();
+		_roundState.EnemyState.IsEnemyTurn.Value = true;
+	}
+
+	private void EndEnemyTurn()
+	{
+		_roundState.EnemyState.IsEnemyTurn.Value = false;
+		_roundState.PlayerState.BeginPlayerTurn();
+	}
+}
+"
+
+[sub_resource type="CSharpScript" id="CSharpScript_egudy"]
+script/source = "using Godot;
+using System;
+
+public partial class PlayerTurnManager : Node
+{
+	public StringName GroupName = \"player_turn_manager\";
+	[Export] public NodePath RoundStatePath { get; set; }
+
+	private RoundState _roundState;
+
+	public override void _EnterTree()
+	{
+		AddToGroup(GroupName);
+	}
+
+	public override void _Ready()
+	{
+		_roundState = GetNode<RoundState>(RoundStatePath);
+		_roundState.PlayerState.SelectedUnit.ReactiveChanged += OnUnitChange;
+		_roundState.PlayerState.IsPlayerTurn.ReactiveChanged += OnTurnChange;
+	}
+
+	private void OnUnitChange(Reactive r)
+	{
+		// TODO Check for null value
+		if (_roundState.PlayerState.SelectedUnit.Value is null)
+		{
+		_roundState.PlayerState.Tools.Value = null;
+		_roundState.PlayerState.SelectedTool.Value = null;
+		}
+		else
+		{
+		_roundState.PlayerState.Tools.Value = _roundState.PlayerState.SelectedUnit.Value.Tools;
+		_roundState.PlayerState.SelectedTool.Value = null;
+		}
+	}
+
+	private void CheckConditions()
+	{
+		bool canAct = true;
+		foreach (Unit unit in _roundState.PlayerState.Units.Value)
+		{
+			foreach (Tool tool in unit.Tools)
+			{
+				if (canAct = tool.CanUse(unit) == true) break;
+			}
+			if (canAct) break;
+		}
+		if (!canAct)
+		{
+			//Transition to enemy turn
+		}
+	}
+
+	private void OnTurnChange(Reactive r)
+	{
+		_roundState.PlayerState.SelectedTool.Value = null;
+		_roundState.PlayerState.SelectedUnit.Value = null;
+	}
+}
+"
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_rtp0y"]
 size = Vector2(32, 32)
@@ -55,7 +227,7 @@ RoundStatePath = NodePath("../../round_state")
 shape = SubResource("WorldBoundaryShape3D_rtp0y")
 
 [node name="attack_tool" type="Node3D" parent="round/global/tools" unique_id=53733593 node_paths=PackedStringArray("cam")]
-script = ExtResource("4_egudy")
+script = SubResource("CSharpScript_j8njj")
 cam = NodePath("../../../world/Camera3D")
 Description = "Attack"
 RoundStatePath = NodePath("../../round_state")
@@ -182,11 +354,11 @@ theme_override_constants/margin_bottom = 4
 layout_mode = 2
 
 [node name="round_manager" type="Node" parent="round/global" unique_id=2085248112]
-script = ExtResource("4_j8njj")
+script = SubResource("CSharpScript_hkdkl")
 RoundStatePath = NodePath("../round_state")
 
 [node name="player_turn_manager" type="Node" parent="round/global/round_manager" unique_id=516654788]
-script = ExtResource("5_scc5w")
+script = SubResource("CSharpScript_egudy")
 RoundStatePath = NodePath("../../round_state")
 
 [node name="world" type="Node" parent="round" unique_id=2027295932]

@@ -16,10 +16,10 @@ public partial class MoveTool : Tool
 		return "Move";
 	}
 
-    public override string GetDescription()
-    {
-        return "Move Desc";
-    }
+	public override string GetDescription()
+	{
+		return "Move Desc";
+	}
 
 	public override void _Ready()
 	{
