@@ -42,7 +42,8 @@ public abstract partial class Tool : Node3D
 	public abstract StringName GetTitle();
 	public abstract String GetDescription();
 
-	public abstract bool CanUse(Unit unit);
+
+	public abstract bool CanAct(Unit unit);
 
 	protected abstract void EnableIdle();
 	protected abstract void DisableIdle();
@@ -51,11 +52,11 @@ public abstract partial class Tool : Node3D
 
 	public void HandleIdleState(Reactive r)
 	{
-		bool notPlayerTurn = !_isPlayerTurn.Value;
-		bool notSelectedTool = _selectedTool.Value != this;
-		bool activeToolExists = _activeTool.Value is not null;
+		bool isPlayerTurn = !_isPlayerTurn.Value;
+		bool isSelectedTool = _selectedTool.Value != this;
+		bool activeToolDNE = _activeTool.Value is not null;
 
-		if (notPlayerTurn || notSelectedTool || activeToolExists)
+		if (isPlayerTurn && isSelectedTool && activeToolDNE)
 		{
 			EnableIdle();
 		}

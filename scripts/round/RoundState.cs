@@ -5,5 +5,5 @@ public partial class RoundState : Node
 {
 	public RoundPlayerState PlayerState = new();
 	public RoundEnemyState EnemyState = new();
-	public RoundMapState MapState = new();
+	public RoundMapState MapState = new(32, 32);
 }

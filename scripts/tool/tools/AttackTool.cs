@@ -15,7 +15,7 @@ public partial class AttackTool : Tool
         return "Attack desc";
     }
 
-    public override bool CanUse(Unit unit)
+    public override bool CanAct(Unit unit)
     {
         return true;
     }

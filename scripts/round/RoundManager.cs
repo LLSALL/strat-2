@@ -20,13 +20,13 @@ public partial class RoundManager : Node
 
 	public void EndPlayerTurn()
 	{
-		_roundState.PlayerState.IsPlayerTurn.Value = false;
+		_roundState.PlayerState.EndPlayerTurn();
 		_roundState.EnemyState.IsEnemyTurn.Value = true;
 	}
 
 	private void EndEnemyTurn()
 	{
 		_roundState.EnemyState.IsEnemyTurn.Value = false;
-		_roundState.PlayerState.IsPlayerTurn.Value = true;
+		_roundState.PlayerState.BeginPlayerTurn();
 	}
 }

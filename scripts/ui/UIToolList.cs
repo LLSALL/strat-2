@@ -13,6 +13,7 @@ public partial class UIToolList : Node
 	private Godot.Collections.Array<Tool> _globalToolList;
 
 	private RoundState _roundState;
+	private RoundPlayerState _playerState;
 
 	private ReactiveBool _isPlayerTurn;
 	private ReactiveObject<Unit> _selectedUnit;
@@ -91,7 +92,7 @@ public partial class UIToolList : Node
 		foreach (Tool tool in _playerTools.Value)
 		{
 			Button button = _toolButtonMap[tool];
-			switch (_activeTool.Value is not null, tool == _selectedTool.Value, tool.CanUse(_selectedUnit.Value))
+			switch (_activeTool.Value is not null, tool == _selectedTool.Value, _playerState.CanSelectTool(tool))
 			{
 				case (true, _, _):
 				case (_, true, _):

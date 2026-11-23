@@ -9,14 +9,26 @@ public partial class Unit : Node3D
 	public Godot.Collections.Array<Tool> Tools { get; private set; }
 
 	private RoundState _roundState;
+	private RoundPlayerState _playerState;
+	private RoundMapState _mapState;
+
+	private ReactiveBool _isPlayerTurn;
+	private ReactiveArray<Unit> _units;
+	private ReactiveObject<Unit> _selectedUnit;
+	private ReactiveLock<Tool> _activeTool;
 
 	public override void _Ready()
 	{
 		_roundState = GetNode<RoundState>(RoundStatePath);
 
-		RoundMapState mapState = _roundState.MapState;
+		_playerState = _roundState.PlayerState;
+		_mapState = _roundState.MapState;
+
+		_units = _playerState.Units;
+		_selectedUnit = _playerState.SelectedUnit;
+
 		Vector2I pos = new Vector2I((int) Position.X, (int) Position.Z);
-		mapState.RegisterEntity(this, pos);
+		_mapState.RegisterEntity(this, pos);
 
 		Tools = [];
 		foreach (NodePath path in ToolPaths)
@@ -24,28 +36,26 @@ public partial class Unit : Node3D
 			Tools.Add(GetNode<Tool>(path));
 		}
 
-		_roundState.PlayerState.Units.Append(this);
-		_roundState.PlayerState.SelectedUnit.Value = this;
+		_playerState.RegisterUnit(this);
+		_playerState.SetSelectedUnit(this);
 	}
 
 	public override void _ExitTree()
 	{
-		_roundState.PlayerState.Units.Remove(this);
-		if (_roundState.PlayerState.SelectedUnit.Value == this)
+		_units.Remove(this);
+		if (_selectedUnit.Value == this)
 		{
-			_roundState.PlayerState.SelectedUnit.Value = null;
+			_selectedUnit.Value = null;
 		}
 		
-		RoundMapState mapState = _roundState.MapState;
-		mapState.UnregisterEntity(this);
+		_mapState.UnregisterEntity(this);
 	}
-
 	public bool CanAct()
 	{
 		bool canAct = false;
 		foreach (Tool tool in Tools)
 		{
-			if (tool.CanUse(this))
+			if (tool.CanAct(this))
 			{
 				canAct = true;
 				break;

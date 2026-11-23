@@ -28,11 +28,11 @@ public partial class MoveTool : Tool
 		_floorArea.InputEvent += OnFloorChange;
 	}
 
-	public override bool CanUse(Unit unit)
+	public override bool CanAct(Unit unit)
 	{
 		if (unit is null)
 		{
-
+			return false;
 		}
 
 		return true;

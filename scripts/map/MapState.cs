@@ -5,15 +5,18 @@ using System.Collections.Generic;
 public partial class RoundMapState : Resource
 {
 	// TODO Expose this, without making this a node?
-	public uint SizeX = 32;
-	public uint SizeY = 32;
+	public uint SizeX {get; private set;}
+	public uint SizeY {get; private set;}
 	[Signal] public delegate void MapChangedEventHandler(RoundMapState mapState, Node entity);
 
 	private AStarGrid2D _grid = new();
 	private Dictionary<Node, Vector2I> _coordinateMap = new();
 
-	public RoundMapState()
+	public RoundMapState(uint sizeX, uint sizeY)
 	{
+		SizeX = sizeX;
+		SizeY = sizeY;
+
 		_grid.Region = new Rect2I(0, 0, (int) SizeX, (int) SizeY);
 		_grid.DiagonalMode = AStarGrid2D.DiagonalModeEnum.Never;
 		_grid.JumpingEnabled = true;
