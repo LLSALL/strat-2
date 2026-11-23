@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class ReactiveObject<T> : Reactive
+public partial class ObjectValue<T> : Value
 {
     private T _value;
     public T Value
@@ -14,7 +14,7 @@ public partial class ReactiveObject<T> : Reactive
         }
     }
 
-    public ReactiveObject(T intialValue, Reactive initialOwner = null) : base(initialOwner)
+    public ObjectValue(T intialValue, Value initialOwner = null) : base(initialOwner)
     {
         _value = intialValue;
     }

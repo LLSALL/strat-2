@@ -12,10 +12,10 @@ public partial class Unit : Node3D
 	private RoundPlayerState _playerState;
 	private RoundMapState _mapState;
 
-	private ReactiveBool _isPlayerTurn;
-	private ReactiveArray<Unit> _units;
-	private ReactiveObject<Unit> _selectedUnit;
-	private ReactiveLock<Tool> _activeTool;
+	private BoolValue _isPlayerTurn;
+	private ArrayValue<Unit> _units;
+	private ObjectValue<Unit> _selectedUnit;
+	private LockValue<Tool> _activeTool;
 
 	public override void _Ready()
 	{

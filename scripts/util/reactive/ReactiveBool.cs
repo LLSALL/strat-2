@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Numerics;
 
-public partial class ReactiveBool : Reactive
+public partial class BoolValue : Value
 {
     private bool _value;
     public bool Value
@@ -15,7 +15,7 @@ public partial class ReactiveBool : Reactive
         }
     }
 
-    public ReactiveBool(bool intialValue, Reactive initialOwner = null) : base(initialOwner)
+    public BoolValue(bool intialValue, Value initialOwner = null) : base(initialOwner)
     {
         _value = intialValue;
     }

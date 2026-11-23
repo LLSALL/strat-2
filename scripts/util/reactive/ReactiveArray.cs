@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class ReactiveArray<[MustBeVariant] T> : Reactive
+public partial class ArrayValue<[MustBeVariant] T> : Value
 {
     private Godot.Collections.Array<T> _value;
     public Godot.Collections.Array<T> Value
@@ -14,12 +14,12 @@ public partial class ReactiveArray<[MustBeVariant] T> : Reactive
         }
     }
 
-    public ReactiveArray(Godot.Collections.Array<T> initialValue, Reactive initialOwner = null) : base(initialOwner)
+    public ArrayValue(Godot.Collections.Array<T> initialValue, Value initialOwner = null) : base(initialOwner)
     {
         _value = initialValue;
     }
 
-    public ReactiveArray(Reactive initialOwner = null) : base(initialOwner)
+    public ArrayValue(Value initialOwner = null) : base(initialOwner)
     {
         _value = new Godot.Collections.Array<T>();
     }

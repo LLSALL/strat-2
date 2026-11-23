@@ -6,7 +6,7 @@ public partial class UIPlayerTurnPanel : Control
     [Export] public NodePath RoundStatePath { get; set; }
 
     private RoundState _roundState;
-    private ReactiveBool _isPlayerTurn;
+    private BoolValue _isPlayerTurn;
 
     public override void _Ready()
     {
@@ -17,7 +17,7 @@ public partial class UIPlayerTurnPanel : Control
         _isPlayerTurn.ReactiveChanged += OnPlayerTurnChange;
     }
 
-    private void OnPlayerTurnChange(Reactive r)
+    private void OnPlayerTurnChange(Value r)
     {
         if (_isPlayerTurn.Value == true)
         {

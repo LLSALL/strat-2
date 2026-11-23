@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Numerics;
 
-public partial class ReactiveNumber<T> : Reactive where T : INumber<T>
+public partial class NumberValue<T> : Value where T : INumber<T>
 {
     private T _value;
     public T Value
@@ -15,7 +15,7 @@ public partial class ReactiveNumber<T> : Reactive where T : INumber<T>
         }
     }
 
-    public ReactiveNumber(T intialValue, Reactive initialOwner = null) : base(initialOwner)
+    public NumberValue(T intialValue, Value initialOwner = null) : base(initialOwner)
     {
         _value = intialValue;
     }

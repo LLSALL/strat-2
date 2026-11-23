@@ -1,16 +1,16 @@
 using Godot;
 using System;
 
-public partial class RoundPlayerState : Reactive
+public partial class RoundPlayerState : Value
 {
-	public ReactiveBool IsPlayerTurn;
+	public BoolValue IsPlayerTurn;
 
-	public ReactiveArray<Unit> Units;
-	public ReactiveObject<Unit> SelectedUnit;
+	public ArrayValue<Unit> Units;
+	public ObjectValue<Unit> SelectedUnit;
 
-	public ReactiveArray<Tool> Tools;
-	public ReactiveObject<Tool> SelectedTool;
-	public ReactiveLock<Tool> ActiveTool;
+	public ArrayValue<Tool> Tools;
+	public ObjectValue<Tool> SelectedTool;
+	public LockValue<Tool> ActiveTool;
 
 	public RoundPlayerState()
 	{

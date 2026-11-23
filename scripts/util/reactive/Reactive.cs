@@ -1,10 +1,10 @@
 using Godot;
 using System;
 
-public partial class Reactive : Resource
+public partial class Value : Resource
 {
-    private Reactive _owner;
-    public Reactive Owner
+    private Value _owner;
+    public Value Owner
     {
         get => _owner;
         set
@@ -23,14 +23,14 @@ public partial class Reactive : Resource
         }
     }
 
-    [Signal] public delegate void ReactiveChangedEventHandler(Reactive reactive);
+    [Signal] public delegate void ReactiveChangedEventHandler(Value reactive);
 
-    public Reactive(Reactive initialOwner = null)
+    public Value(Value initialOwner = null)
     {
         Owner = initialOwner;
     }
 
-    public void Propagate(Reactive reactive = null)
+    public void Propagate(Value reactive = null)
     {
         EmitSignal(SignalName.ReactiveChanged, this);
     }

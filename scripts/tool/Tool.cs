@@ -10,14 +10,14 @@ public abstract partial class Tool : Node3D
 	protected RoundState _roundState;
 	protected RoundPlayerState _playerState;
 
-	protected ReactiveBool _isPlayerTurn;
+	protected BoolValue _isPlayerTurn;
 
-	protected ReactiveArray<Unit> _units;
-	protected ReactiveObject<Unit> _selectedUnit;
+	protected ArrayValue<Unit> _units;
+	protected ObjectValue<Unit> _selectedUnit;
 
-	protected ReactiveArray<Tool> _tools;
-	protected ReactiveObject<Tool> _selectedTool;
-	protected ReactiveLock<Tool> _activeTool;
+	protected ArrayValue<Tool> _tools;
+	protected ObjectValue<Tool> _selectedTool;
+	protected LockValue<Tool> _activeTool;
 
 	protected static (GodotObject, StringName) NoContinuation = (null, null);
 
@@ -50,7 +50,7 @@ public abstract partial class Tool : Node3D
 	protected abstract (GodotObject, StringName) BeginActive();
 	protected abstract void CompleteActive();
 
-	public void HandleIdleState(Reactive r)
+	public void HandleIdleState(Value r)
 	{
 		bool isPlayerTurn = !_isPlayerTurn.Value;
 		bool isSelectedTool = _selectedTool.Value != this;
@@ -67,7 +67,7 @@ public abstract partial class Tool : Node3D
 		}
 	}
 
-	public void HandleActiveStart(Reactive r)
+	public void HandleActiveStart(Value r)
 	{
 		if (_activeTool.Value != this) return;
 

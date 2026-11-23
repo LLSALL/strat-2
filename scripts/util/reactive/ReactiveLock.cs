@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class ReactiveLock<T> : Reactive where T : class
+public partial class LockValue<T> : Value where T : class
 {
     private T _value;
     public T Value
@@ -9,7 +9,7 @@ public partial class ReactiveLock<T> : Reactive where T : class
         get => _value;
     }
 
-    public ReactiveLock(Reactive initialOwner = null) : base(initialOwner)
+    public LockValue(Value initialOwner = null) : base(initialOwner)
     {
         _value = null;
     }
