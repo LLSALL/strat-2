@@ -8,21 +8,12 @@ public partial class MoveTool : Tool
 	private Vector2I _cursorCoordinates;
 	private Vector2I _endCoordinates;
 	private bool _cursorInFloor = false;
-	private bool _processFloor = true;
-
-	public override StringName GetTitle()
-	{
-		return "Move";
-	}
-
-	public override string GetDescription()
-	{
-		return "Move Description";
-	}
+	private bool _processFloor = false;
 
 	public override void _Ready()
 	{
 		base._Ready();
+		_floorArea.InputEvent += OnFloorChange;
 	}
 
 	public override bool CanAct(Unit unit)
@@ -51,19 +42,18 @@ public partial class MoveTool : Tool
 	protected override void EnableIdle()
 	{
 		SetProcessInput(true);
-		_floorArea.InputEvent += OnFloorChange;
-		// _processFloor = true; // TODO Change?
+		_processFloor = true;
 	}
 
 	protected override void DisableIdle()
 	{
 		SetProcessInput(false);
-		_floorArea.InputEvent -= OnFloorChange;
-		// _processFloor = false; // TODO Change?
+		if (_processFloor)
+		_processFloor = false;
 
 	}
 
-	protected override (GodotObject, StringName) BeginActive()
+	protected override (GodotObject, StringName) BeginAction()
 	{
 		_activeUnit = _selectedUnit.Value;
 		_endCoordinates = _cursorCoordinates;
@@ -74,13 +64,18 @@ public partial class MoveTool : Tool
 			);
 		_activeUnit.PathMover.BeginPath(path);
 
-		return (_activeUnit, "PathFinished");
+		return (_activeUnit.PathMover, "PathFinished");
 	}
 
-	protected override void CompleteActive()
+	protected override void CompleteAction()
 	{
 		_mapState.SetCoordinates(_activeUnit, _endCoordinates);
 		_activeUnit = null;
+	}
+
+	protected override void CancelAction()
+	{
+		_activeUnit.PathMover.SkipPath();
 	}
 
 	private void OnFloorChange(Node camera, InputEvent inputEvent, Vector3 position, Vector3 normal, long shapeIdx)

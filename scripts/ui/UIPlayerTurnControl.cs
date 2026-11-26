@@ -3,28 +3,29 @@ using System;
 
 public partial class UIPlayerTurnControl : Control
 {
-    [Export] public NodePath PlayerStatePath { get; set; }
+	[Export] public NodePath PlayerStatePath { get; set; }
 
-    private RoundPlayerState _playerState;
-    private BoolReadOnlyValue _isPlayerTurn;
+	private RoundPlayerState _playerState;
+	private BoolReadOnlyValue _isPlayerTurn;
 
-    public override void _Ready()
-    {
-        _playerState = GetNode<RoundPlayerState>(PlayerStatePath);
-        _isPlayerTurn = _playerState.IsPlayerTurn;
+	public override void _Ready()
+	{
+		_playerState = GetNode<RoundPlayerState>(PlayerStatePath);
+		_isPlayerTurn = _playerState.IsPlayerTurn;
 
-        _isPlayerTurn.ReactiveChanged += OnPlayerTurnChange;
-    }
+		_isPlayerTurn.ReactiveChanged += OnPlayerTurnChange;
+		OnPlayerTurnChange(null);
+	}
 
-    private void OnPlayerTurnChange(Value r)
-    {
-        if (_isPlayerTurn.Value == true)
-        {
-            Show();
-        }
-        else
-        {
-            Hide();
-        }
-    }
+	private void OnPlayerTurnChange(Value r)
+	{
+		if (_isPlayerTurn.Value == true)
+		{
+			Show();
+		}
+		else
+		{
+			Hide();
+		}
+	}
 }

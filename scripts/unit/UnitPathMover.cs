@@ -5,7 +5,6 @@ using System.Data;
 // TODO MAKE THIS SKIPPABLE
 public partial class UnitPathMover : Node
 {
-
 	[Export] Node3D Transform;
 	[Export] public float MoveSpeed { get => _moveSpeed; set { _moveSpeed = float.Max(0, value); } }
 	public bool IsActive {get; private set;} = false;
@@ -34,16 +33,7 @@ public partial class UnitPathMover : Node
 		if (Transform.Position.DistanceTo(waypoint3D) < EPSIL)
 		{
 			_pathIdx++;
-			if (_pathIdx == _path.Count)
-			{
-				// Path completed
-				_path = null;
-				_pathIdx = 0;
-				SetPhysicsProcess(false);
-				IsActive = false;
-				EmitSignal(SignalName.PathFinished);
-				return;
-			}
+			if (_pathIdx == _path.Count) FinishPath();
 		}
 	}
 
@@ -54,5 +44,23 @@ public partial class UnitPathMover : Node
 		IsActive = true;
 		SetPhysicsProcess(true);
 		return;
+	}
+
+	public void SkipPath()
+	{
+		Vector2I end = _path[_path.Count - 1];
+		Transform.Position = new Vector3(end.X, Transform.Position.Y, end.Y);
+
+		FinishPath();
+	}
+
+	public void FinishPath()
+	{
+		_path = null;
+		_pathIdx = 0;
+		SetPhysicsProcess(false);
+		IsActive = false;
+
+		EmitSignal(SignalName.PathFinished);
 	}
 }

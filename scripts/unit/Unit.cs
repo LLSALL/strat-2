@@ -7,8 +7,6 @@ public partial class Unit : Node3D
 	[Export] public NodePath EnemyStatePath { get; set; }
 	[Export] public NodePath MapStatePath { get; set; }
 
-
-
 	[Export] public Godot.Collections.Array<NodePath> ToolPaths { get; set; } = [];
 	[Export] public UnitPathMover PathMover { get; set; }
 	public Godot.Collections.Array<Tool> Tools { get; private set; }

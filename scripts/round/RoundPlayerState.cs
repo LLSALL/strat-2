@@ -3,12 +3,35 @@ using System;
 
 public partial class RoundPlayerState : Node
 {
-	public Value Value { get; private set; }
+	public override string ToString()
+	{
+		string str = "";
+
+		str += $"Is Player Turn: {IsPlayerTurn.Value}\n";
+		str += $"Units: {Units.Value}\n";
+		str += $"Selected Unit: {SelectedUnit.Value}\n";
+		str += $"Toolbox: {ToolBox.Value}\n";
+		str += $"Selected Tool: {SelectedTool.Value}\n";
+		str += $"Active Tool: {ActiveTool.Value}";
+
+		return str;
+	}
+
+	private static int _DbgCount = 0;
+	public void DebugPrint(Value r)
+	{
+		GD.Print("==================");
+		GD.Print($"State Log #{_DbgCount++}");
+		GD.Print(ToString());
+		GD.Print("==================\n");
+	}
+
+	public Value Value { get; set; }
 
 	public BoolReadOnlyValue IsPlayerTurn { get; private set; }
 	public ArrayReadOnlyValue<Unit> Units { get; private set; }
 	public ObjectReadOnlyValue<Unit> SelectedUnit { get; private set; }
-	public ArrayReadOnlyValue<Tool> Tools { get; private set; }
+	public ArrayReadOnlyValue<Tool> ToolBox { get; private set; }
 	public ObjectReadOnlyValue<Tool> SelectedTool { get; private set; }
 	public LockReadOnlyValue<Tool> ActiveTool { get; private set; }
 
@@ -17,22 +40,37 @@ public partial class RoundPlayerState : Node
 	private ArrayValue<Unit> _units;
 	private ObjectValue<Unit> _selectedUnit;
 
-	private ArrayValue<Tool> _tools;
+	private ArrayValue<Tool> _toolBox;
 	private ObjectValue<Tool> _selectedTool;
 	private LockValue<Tool> _activeTool;
 
-	public RoundPlayerState()
+	public override void _EnterTree()
 	{
+		base._EnterTree();
+
 		Value = new();
 
-		_isPlayerTurn = new(true, Value);
+		_isPlayerTurn = new(true);
 
 		_units = new([]);
-		_selectedUnit = new(null, Value);
+		_selectedUnit = new(null);
 
-		_tools = new([], Value);
-		_selectedTool = new(null, Value);
-		_activeTool = new(Value);
+		_toolBox = new([]);
+		_selectedTool = new(null);
+		_activeTool = new();
+
+		IsPlayerTurn = new(_isPlayerTurn, Value);
+		Units = new(_units, Value);
+		SelectedUnit = new(_selectedUnit, Value);
+		ToolBox = new(_toolBox, Value);
+		SelectedTool = new(_selectedTool, Value);
+		ActiveTool = new(_activeTool, Value);
+	}
+
+	public override void _Ready()
+	{
+		base._Ready();
+		Value.ReactiveChanged += DebugPrint;
 	}
 
 	public void BeginPlayerTurn()
@@ -66,11 +104,11 @@ public partial class RoundPlayerState : Node
 
 		if (unit is not null)
 		{
-			_tools.Value = unit.Tools;
+			_toolBox.Value = unit.Tools;
 		}
 		else
 		{
-			_tools.Clear();
+			_toolBox.Clear();
 		}
 
 		SelectFirstAvailableTool();
@@ -78,12 +116,7 @@ public partial class RoundPlayerState : Node
 
 	public bool CanSelectUnit(Unit unit)
 	{
-		bool isPlayerTurn = _isPlayerTurn.Value;
-		bool notSelectedUnit = _selectedUnit.Value != unit;
-		bool noActiveToolExists = _activeTool.Value is null;
-		bool canAct = unit.CanAct();
-
-		return isPlayerTurn && notSelectedUnit && noActiveToolExists && canAct;
+		return unit.CanAct();
 	}
 
 	public void SelectFirstAvailableUnit()
@@ -108,18 +141,13 @@ public partial class RoundPlayerState : Node
 
 	public bool CanSelectTool(Tool tool)
 	{
-		bool isPlayerTurn = _isPlayerTurn.Value;
-		bool notSelectedTool = _selectedTool.Value != tool;
-		bool noActiveToolExists = _activeTool.Value is null;
-		bool canAct = tool.CanAct(_selectedUnit.Value);
-
-		return isPlayerTurn && notSelectedTool && noActiveToolExists && canAct;
+		return tool.CanAct(_selectedUnit.Value);
 	}
 
 	public void SelectFirstAvailableTool()
 	{
 		Tool selectedTool = null;
-		foreach (Tool tool in _tools.Value)
+		foreach (Tool tool in _toolBox.Value)
 		{
 			if (CanSelectTool(tool))
 			{

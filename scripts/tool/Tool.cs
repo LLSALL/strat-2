@@ -4,6 +4,7 @@ using System.Security.Principal;
 
 public abstract partial class Tool : Node3D
 {
+	[Export] public String Title { get; set; }
 	[Export] public String Description { get; set; }
 
 	[Export] public NodePath PlayerStatePath { get; set; }
@@ -23,7 +24,6 @@ public abstract partial class Tool : Node3D
 	protected ObjectReadOnlyValue<Tool> _selectedTool;
 	protected LockReadOnlyValue<Tool> _activeTool;
 
-	protected static (GodotObject, StringName) NoContinuation = (null, null);
 
 	public override void _Ready()
 	{
@@ -36,7 +36,7 @@ public abstract partial class Tool : Node3D
 		_units = _playerState.Units;
 		_selectedUnit = _playerState.SelectedUnit;
 
-		_tools = _playerState.Tools;
+		_tools = _playerState.ToolBox;
 		_selectedTool = _playerState.SelectedTool;
 		_activeTool = _playerState.ActiveTool;
 
@@ -44,22 +44,19 @@ public abstract partial class Tool : Node3D
 		_playerState.Value.ReactiveChanged += HandleActiveStart;
 	}
 
-	public abstract StringName GetTitle();
-	public abstract String GetDescription();
-
-
 	public abstract bool CanAct(Unit unit);
 
 	protected abstract void EnableIdle();
 	protected abstract void DisableIdle();
-	protected abstract (GodotObject, StringName) BeginActive();
-	protected abstract void CompleteActive();
+	protected abstract (GodotObject, StringName) BeginAction();
+	protected abstract void CompleteAction();
+	protected abstract void CancelAction();
 
-	public void HandleIdleState(Value r)
+	private void HandleIdleState(Value r)
 	{
-		bool isPlayerTurn = !_isPlayerTurn.Value;
-		bool isSelectedTool = _selectedTool.Value != this;
-		bool activeToolDNE = _activeTool.Value is not null;
+		bool isPlayerTurn = _isPlayerTurn.Value;
+		bool isSelectedTool = _selectedTool.Value == this;
+		bool activeToolDNE = _activeTool.Value is null;
 
 		if (isPlayerTurn && isSelectedTool && activeToolDNE)
 		{
@@ -72,25 +69,52 @@ public abstract partial class Tool : Node3D
 		}
 	}
 
-	public void HandleActiveStart(Value r)
+	protected static (GodotObject, StringName) NoContinuation = (null, null);
+	private (GodotObject, StringName) _continuation = NoContinuation;
+
+	private void HandleActiveStart(Value r)
 	{
 		if (_activeTool.Value != this) return;
 
-		var continuation = BeginActive();
+		var continuation = BeginAction();
 		var (obj, signalName) = continuation;
 		if (continuation != NoContinuation)
 		{
-			obj.Connect(signalName, Callable.From(OnActiveCompleted), (uint)GodotObject.ConnectFlags.OneShot);
+			_continuation = continuation;
+			obj.Connect(signalName, Callable.From(HandleActiveCompletion), (uint)GodotObject.ConnectFlags.OneShot);
 		}
 		else
 		{
-			_playerState.LockActiveTool(this);
+			_continuation = NoContinuation;
+			HandleActiveCompletion();
 		}
 	}
 
-	public void OnActiveCompleted()
+	private void HandleActiveCompletion()
 	{
-		CompleteActive();
+		// Assumes that signal has already been disconnected prior to call
+		_continuation = NoContinuation;
+
+		CompleteAction();
 		_playerState.UnlockActiveTool(this);
+	}
+
+	public void SkipActive()
+	{
+		if (_activeTool.Value != this) return;
+
+		// Disconnect continuation signal connection if it exists
+		if (_continuation != NoContinuation)
+		{
+			var (obj, signalName) = _continuation;
+			if (obj.IsConnected(signalName, Callable.From(HandleActiveCompletion)))
+			{
+				obj.Disconnect(signalName, Callable.From(HandleActiveCompletion));
+			}
+		}
+		_continuation = NoContinuation;
+
+		CancelAction();
+		HandleActiveCompletion();
 	}
 }

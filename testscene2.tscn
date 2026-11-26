@@ -1,3 +1,183 @@
 [gd_scene format=3 uid="uid://b1nepp72n5ey8"]
 
-[node name="Node3D" type="Node3D" unique_id=1724430216]
+[ext_resource type="Script" uid="uid://ca50lmthds2my" path="res://scripts/round/RoundPlayerState.cs" id="1_fni8s"]
+[ext_resource type="Script" uid="uid://dfblggnte6ef8" path="res://scripts/round/RoundEnemyState.cs" id="2_y8tav"]
+[ext_resource type="Script" uid="uid://d07echrgqlxw0" path="res://scripts/map/RoundMapState.cs" id="3_awddo"]
+[ext_resource type="Script" uid="uid://8vx5nwyuvoaj" path="res://scripts/round/GlobalToolList.cs" id="4_71ih3"]
+[ext_resource type="Script" uid="uid://b33s0ygl1u2og" path="res://scripts/unit/Unit.cs" id="4_y8tav"]
+[ext_resource type="Script" uid="uid://ccoymnuvwg0on" path="res://scripts/tool/tools/MoveTool.cs" id="5_qxrn5"]
+[ext_resource type="Script" uid="uid://bgdi60ti7idkg" path="res://scripts/ui/UIPlayerTurnControl.cs" id="6_l524k"]
+[ext_resource type="Script" uid="uid://nmklkwvwwkm8" path="res://scripts/ui/UIUnitButtonList.cs" id="7_ljdm8"]
+[ext_resource type="Script" uid="uid://b4x17nbalo8ay" path="res://scripts/ui/UIToolButtonList.cs" id="7_qxrn5"]
+[ext_resource type="Script" uid="uid://ceh8h1x0s67cd" path="res://scripts/unit/UnitPathMover.cs" id="8_ljdm8"]
+[ext_resource type="Script" uid="uid://dmvdkjrif0xrb" path="res://scripts/ui/UICancelActionButton.cs" id="9_ljdm8"]
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_rtp0y"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_rtp0y"]
+size = Vector2(32, 32)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_rtp0y"]
+
+[node name="Root" type="Node3D" unique_id=1724430216]
+
+[node name="Round" type="Node" parent="." unique_id=1328962451]
+
+[node name="Global" type="Node" parent="Round" unique_id=84114195]
+
+[node name="Player State" type="Node" parent="Round/Global" unique_id=1656437724]
+script = ExtResource("1_fni8s")
+
+[node name="Enemy State" type="Node" parent="Round/Global" unique_id=2055342330]
+script = ExtResource("2_y8tav")
+
+[node name="Map State" type="Node" parent="Round/Global" unique_id=342038845]
+script = ExtResource("3_awddo")
+SizeX = 34
+SizeY = 34
+
+[node name="Global Tool List" type="Node" parent="Round/Global" unique_id=1517628711]
+script = ExtResource("4_71ih3")
+
+[node name="Move Tool" type="Node3D" parent="Round/Global/Global Tool List" unique_id=324422450 node_paths=PackedStringArray("_floorArea")]
+script = ExtResource("5_qxrn5")
+_floorArea = NodePath("Floor Area")
+Title = "Move"
+Description = "Move Description"
+PlayerStatePath = NodePath("../../Player State")
+EnemyStatePath = NodePath("../../Enemy State")
+MapStatePath = NodePath("../../Map State")
+
+[node name="Floor Area" type="Area3D" parent="Round/Global/Global Tool List/Move Tool" unique_id=1590418232]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Round/Global/Global Tool List/Move Tool/Floor Area" unique_id=1452598139]
+shape = SubResource("WorldBoundaryShape3D_rtp0y")
+
+[node name="UI" type="Node" parent="Round/Global" unique_id=1656806676]
+
+[node name="UnitListPanel" type="PanelContainer" parent="Round/Global/UI" unique_id=124628958]
+offset_left = 16.0
+offset_top = 224.0
+offset_right = 144.0
+offset_bottom = 416.0
+script = ExtResource("6_l524k")
+PlayerStatePath = NodePath("../../Player State")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Round/Global/UI/UnitListPanel" unique_id=1876795961]
+layout_mode = 2
+script = ExtResource("7_ljdm8")
+PlayerStatePath = NodePath("../../../Player State")
+
+[node name="ToolListPanel" type="PanelContainer" parent="Round/Global/UI" unique_id=2073968664]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 144.0
+offset_bottom = 208.0
+script = ExtResource("6_l524k")
+PlayerStatePath = NodePath("../../Player State")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Round/Global/UI/ToolListPanel" unique_id=1731948410]
+layout_mode = 2
+script = ExtResource("7_qxrn5")
+PlayerStatePath = NodePath("../../../Player State")
+ToolListPath = NodePath("../../../Global Tool List")
+
+[node name="CancelActionPanel" type="PanelContainer" parent="Round/Global/UI" unique_id=613297158]
+offset_left = 16.0
+offset_top = 432.0
+offset_right = 144.0
+offset_bottom = 480.0
+script = ExtResource("6_l524k")
+PlayerStatePath = NodePath("../../Player State")
+
+[node name="Button" type="Button" parent="Round/Global/UI/CancelActionPanel" unique_id=1197724379]
+layout_mode = 2
+text = "Skip
+"
+script = ExtResource("9_ljdm8")
+PlayerStatePath = NodePath("../../../Player State")
+
+[node name="World" type="Node" parent="Round" unique_id=1618124771]
+
+[node name="Camera3D" type="Camera3D" parent="Round/World" unique_id=2111444652]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 16, 15, 37)
+
+[node name="Map" type="Node3D" parent="Round/World" unique_id=858686027]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Round/World/Map" unique_id=282835406]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 16)
+mesh = SubResource("PlaneMesh_rtp0y")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Round/World/Map" unique_id=19330660]
+transform = Transform3D(1, 0, 0, 0, 0.7071068, 0.7071068, 0, -0.7071068, 0.7071068, 0, 5, 0)
+
+[node name="Unit A" type="Node3D" parent="Round/World" unique_id=1985526114 node_paths=PackedStringArray("PathMover")]
+script = ExtResource("4_y8tav")
+PlayerStatePath = NodePath("../../Global/Player State")
+EnemyStatePath = NodePath("../../Global/Enemy State")
+MapStatePath = NodePath("../../Global/Map State")
+ToolPaths = Array[NodePath]([NodePath("../../Global/Global Tool List/Move Tool")])
+PathMover = NodePath("Path Mover")
+
+[node name="Path Mover" type="Node" parent="Round/World/Unit A" unique_id=1929238046 node_paths=PackedStringArray("Transform")]
+script = ExtResource("8_ljdm8")
+Transform = NodePath("..")
+MoveSpeed = 30.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Round/World/Unit A" unique_id=1533307111]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_rtp0y")
+
+[node name="Unit B" type="Node3D" parent="Round/World" unique_id=1667331676 node_paths=PackedStringArray("PathMover")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 0)
+script = ExtResource("4_y8tav")
+PlayerStatePath = NodePath("../../Global/Player State")
+EnemyStatePath = NodePath("../../Global/Enemy State")
+MapStatePath = NodePath("../../Global/Map State")
+ToolPaths = Array[NodePath]([NodePath("../../Global/Global Tool List/Move Tool")])
+PathMover = NodePath("Path Mover")
+
+[node name="Path Mover" type="Node" parent="Round/World/Unit B" unique_id=413391364 node_paths=PackedStringArray("Transform")]
+script = ExtResource("8_ljdm8")
+Transform = NodePath("..")
+MoveSpeed = 30.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Round/World/Unit B" unique_id=1635159387]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_rtp0y")
+
+[node name="Unit C" type="Node3D" parent="Round/World" unique_id=2072379094 node_paths=PackedStringArray("PathMover")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 0)
+script = ExtResource("4_y8tav")
+PlayerStatePath = NodePath("../../Global/Player State")
+EnemyStatePath = NodePath("../../Global/Enemy State")
+MapStatePath = NodePath("../../Global/Map State")
+ToolPaths = Array[NodePath]([NodePath("../../Global/Global Tool List/Move Tool")])
+PathMover = NodePath("Path Mover")
+
+[node name="Path Mover" type="Node" parent="Round/World/Unit C" unique_id=259015524 node_paths=PackedStringArray("Transform")]
+script = ExtResource("8_ljdm8")
+Transform = NodePath("..")
+MoveSpeed = 30.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Round/World/Unit C" unique_id=1101481227]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_rtp0y")
+
+[node name="Unit D" type="Node3D" parent="Round/World" unique_id=1634224467 node_paths=PackedStringArray("PathMover")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0, 8)
+script = ExtResource("4_y8tav")
+PlayerStatePath = NodePath("../../Global/Player State")
+EnemyStatePath = NodePath("../../Global/Enemy State")
+MapStatePath = NodePath("../../Global/Map State")
+ToolPaths = Array[NodePath]([NodePath("../../Global/Global Tool List/Move Tool")])
+PathMover = NodePath("Path Mover")
+
+[node name="Path Mover" type="Node" parent="Round/World/Unit D" unique_id=736521164 node_paths=PackedStringArray("Transform")]
+script = ExtResource("8_ljdm8")
+Transform = NodePath("..")
+MoveSpeed = 30.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Round/World/Unit D" unique_id=1533384377]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_rtp0y")
